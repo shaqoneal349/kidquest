@@ -1,0 +1,10 @@
+# OS / 編輯器
+Thumbs.db
+desktop.ini
+.DS_Store
+*.swp
+.vscode/
+.idea/
+
+# 個人備份檔（設定頁匯出的 JSON，含小孩姓名，不要進版控）
+小小任務家-備份-*.json

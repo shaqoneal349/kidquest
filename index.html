@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>小小任務家 — 任務集點</title>
+<meta name="description" content="小朋友完成任務、集點數、換獎品的家庭集點 App">
+<meta name="theme-color" content="#5B7FFF">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="小小任務家">
+<style>
+:root{
+  --bg:#EEF5FF; --ink:#263452; --ink2:#6B7A99; --line:#DCE6F5;
+  --primary:#5B7FFF; --primary-d:#4463D9; --coin:#FFB300; --coin-d:#E09A00;
+  --mint:#2EC27E; --berry:#FF6B9A; --card:#FFFFFF;
+  --parent-bg:#F4F6FA; --parent-accent:#3D4C6E;
+  --r-lg:22px; --r-md:16px; --r-sm:12px;
+  --shadow:0 4px 14px rgba(38,52,82,.08);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;overscroll-behavior:none}
+body{
+  font-family:"Yuanti TC","YouYuan","Microsoft JhengHei","PingFang TC",system-ui,sans-serif;
+  background:linear-gradient(180deg,#DCEBFF 0%,var(--bg) 30%);
+  color:var(--ink); display:flex; justify-content:center;
+  height:100vh; height:100dvh;
+}
+#app{width:100%;max-width:470px;height:100vh;height:100dvh;position:relative;display:flex;flex-direction:column;background:var(--bg);box-shadow:0 0 40px rgba(38,52,82,.10);overflow:hidden}
+button{font-family:inherit;border:none;cursor:pointer;background:none;color:inherit}
+input,select,textarea{font-family:inherit;font-size:16px;color:var(--ink)}
+.hidden{display:none!important}
+
+/* ===== 共用元件 ===== */
+.screen{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.scroll{flex:1;min-height:0;overflow-y:auto;padding:16px 16px 96px;-webkit-overflow-scrolling:touch}
+.card{background:var(--card);border-radius:var(--r-lg);padding:16px;box-shadow:var(--shadow);margin-bottom:14px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:999px;padding:12px 20px;font-size:16px;font-weight:700;transition:transform .12s}
+.btn:active{transform:scale(.95)}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-mint{background:var(--mint);color:#fff}
+.btn-ghost{background:#EDF2FC;color:var(--ink)}
+.btn-danger{background:#FFE3E3;color:#D64545}
+.btn-block{width:100%}
+.btn-sm{padding:8px 14px;font-size:14px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:14px;color:var(--ink2);margin-bottom:6px;font-weight:700}
+.field input[type=text],.field input[type=number],.field input[type=password],.field input[type=date],.field select{
+  width:100%;padding:12px 14px;border:2px solid var(--line);border-radius:var(--r-sm);background:#fff;outline:none}
+.field input:focus,.field select:focus{border-color:var(--primary)}
+.pill{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700}
+.pill-coin{background:#FFF3D6;color:var(--coin-d)}
+.pill-basic{background:#E3ECFF;color:var(--primary-d)}
+.pill-adv{background:#FFE3EC;color:#D6407A}
+.pill-mint{background:#DCF6EA;color:#1E9963}
+.pill-wait{background:#FFF0DA;color:#C77A12}
+.empty{padding:34px 16px;text-align:center;color:var(--ink2);font-size:15px;line-height:1.7}
+.empty .big{font-size:44px;display:block;margin-bottom:8px}
+
+/* ===== 初始設定 ===== */
+#setup .scroll{padding-top:36px}
+.setup-title{text-align:center;margin-bottom:6px;font-size:26px}
+.setup-sub{text-align:center;color:var(--ink2);font-size:14px;margin-bottom:24px}
+.avatar-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px}
+.avatar-opt{aspect-ratio:1;border-radius:50%;background:#fff;border:3px solid var(--line);font-size:34px;display:flex;align-items:center;justify-content:center;overflow:hidden;transition:transform .12s}
+.avatar-opt.sel{border-color:var(--primary);transform:scale(1.08);box-shadow:0 0 0 4px rgba(91,127,255,.2)}
+.avatar-opt img{width:100%;height:100%;object-fit:cover}
+
+/* ===== 小孩端頂部 ===== */
+.kid-head{padding:18px 16px 6px;display:flex;align-items:center;gap:12px}
+.kid-avatar{width:56px;height:56px;border-radius:50%;background:#fff;border:3px solid #fff;box-shadow:var(--shadow);font-size:30px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
+.kid-avatar img{width:100%;height:100%;object-fit:cover}
+.kid-name{font-size:18px;font-weight:800}
+.kid-meta{font-size:13px;color:var(--ink2)}
+.lock-btn{margin-left:auto;width:44px;height:44px;border-radius:50%;background:#fff;box-shadow:var(--shadow);font-size:20px}
+.coin-hero{margin:8px 16px 2px;background:linear-gradient(135deg,#FFD65C,#FFB300);border-radius:22px;padding:12px 16px;box-shadow:0 8px 20px rgba(255,179,0,.35);position:relative;overflow:hidden}
+.coin-hero::after{content:"";position:absolute;right:-30px;top:-30px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.25)}
+.coin-row{display:flex;align-items:center;gap:12px}
+.coin-icon{font-size:36px;filter:drop-shadow(0 3px 4px rgba(160,110,0,.3))}
+.coin-icon.bounce{animation:coinBounce .6s}
+@keyframes coinBounce{0%{transform:scale(1)}30%{transform:scale(1.35) rotate(-12deg)}60%{transform:scale(.92)}100%{transform:scale(1)}}
+.coin-num{font-size:34px;font-weight:900;color:#5C3D00;line-height:1}
+.coin-label{font-size:12px;font-weight:700;color:#7A5200;margin-top:2px}
+.streak{margin-left:auto;display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,.55);border-radius:999px;padding:5px 11px;font-size:12.5px;font-weight:800;color:#8A4B00;white-space:nowrap;position:relative;z-index:1}
+
+/* ===== 任務卡 ===== */
+.date-bar{display:flex;align-items:center;justify-content:space-between;margin:8px 2px 12px}
+.date-bar h2{font-size:17px}
+.task{display:flex;align-items:center;gap:12px;background:var(--card);border-radius:var(--r-md);padding:13px 14px;box-shadow:var(--shadow);margin-bottom:10px;transition:opacity .3s}
+.task.adv{border-left:5px solid var(--berry)}
+.task .t-icon{font-size:28px;width:40px;text-align:center;flex-shrink:0}
+.task .t-body{flex:1;min-width:0}
+.task .t-name{font-size:18px;font-weight:800}
+.task .t-sub{margin-top:3px}
+.task.done{opacity:.55}
+.task.done .t-name{text-decoration:line-through}
+.check{width:46px;height:46px;border-radius:50%;flex-shrink:0;font-size:20px;font-weight:900;display:flex;align-items:center;justify-content:center;border:3px dashed var(--line);color:var(--line);transition:all .15s}
+.check.todo:active{transform:scale(.9)}
+.check.pending{border:none;background:#FFF0DA;color:#C77A12;font-size:18px}
+.check.done{border:none;background:var(--mint);color:#fff}
+.progress-strip{display:flex;gap:6px;margin-bottom:14px}
+.progress-strip .seg{flex:1;height:8px;border-radius:99px;background:var(--line)}
+.progress-strip .seg.on{background:var(--mint)}
+
+/* ===== 日期切換列（小孩端 ±3 天） ===== */
+.day-strip{display:flex;gap:6px;margin-bottom:14px}
+.day-chip{flex:1;background:#fff;border-radius:14px;padding:8px 2px 7px;display:flex;flex-direction:column;align-items:center;gap:2px;box-shadow:var(--shadow);font-weight:800;font-size:14.5px;transition:transform .1s}
+.day-chip:active{transform:scale(.93)}
+.day-chip .dc-w{font-size:10.5px;color:var(--ink2);font-weight:700}
+.day-chip .dc-dot{width:5px;height:5px;border-radius:50%;background:var(--coin)}
+.day-chip .dc-dot.off{background:transparent}
+.day-chip.on{background:var(--primary);color:#fff}
+.day-chip.on .dc-w{color:rgba(255,255,255,.85)}
+.day-chip.on .dc-dot{background:#FFD65C}
+/* ===== 家長端多選日期 ===== */
+.quick-row{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+.quick-row button{background:#EDF2FC;border-radius:999px;padding:6px 12px;font-size:12.5px;font-weight:800;color:var(--ink)}
+.date-chips{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.dchip{background:#fff;border:2px solid var(--line);border-radius:10px;padding:6px 0 5px;display:flex;flex-direction:column;align-items:center;gap:1px;font-size:13px;font-weight:800}
+.dchip .dw{font-size:9.5px;color:var(--ink2);font-weight:700}
+.dchip .dd{width:4px;height:4px;border-radius:50%;background:var(--coin)}
+.dchip .dd.off{background:transparent}
+.dchip.on{border-color:var(--primary);background:#EAF0FF;color:var(--primary-d)}
+/* ===== 兌換 ===== */
+.reward{background:var(--card);border-radius:var(--r-md);padding:14px;box-shadow:var(--shadow);margin-bottom:12px;display:flex;gap:12px;align-items:center}
+.reward .r-icon{font-size:34px;width:48px;text-align:center;flex-shrink:0}
+.r-body{flex:1;min-width:0}
+.r-name{font-weight:800;font-size:17.5px}
+.bar{height:8px;background:var(--line);border-radius:99px;margin-top:8px;overflow:hidden}
+.bar>i{display:block;height:100%;background:linear-gradient(90deg,#FFD65C,var(--coin));border-radius:99px;transition:width .4s}
+.bar-txt{font-size:12px;color:var(--ink2);margin-top:4px}
+.redeem-item{display:flex;align-items:center;gap:12px;background:var(--card);border-radius:var(--r-md);padding:13px 14px;box-shadow:var(--shadow);margin-bottom:10px}
+
+/* ===== 歷史 ===== */
+.day-group{margin-bottom:16px}
+.day-title{display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:800;color:var(--ink2);margin:0 4px 8px}
+.day-title .sum{color:var(--coin-d)}
+.hist-task{display:flex;align-items:center;gap:10px;background:var(--card);border-radius:var(--r-sm);padding:10px 12px;box-shadow:var(--shadow);margin-bottom:8px;font-size:15.5px}
+.hist-task .t-icon{font-size:22px}
+.hist-task .pts{margin-left:auto;font-weight:900;color:var(--coin-d)}
+.hist-task.miss{opacity:.5}
+.hist-task.miss .pts{color:var(--ink2);font-weight:700}
+
+/* ===== 底部導覽 ===== */
+.tabbar{position:absolute;bottom:0;left:0;right:0;z-index:20;background:#fff;border-top:1px solid var(--line);display:flex;padding:6px 8px calc(10px + env(safe-area-inset-bottom))}
+.tabbar button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;font-size:11.5px;font-weight:700;color:var(--ink2);border-radius:14px}
+.tabbar button.on{color:var(--primary)}
+.tabbar .ico{font-size:22px}
+.tabbar .badge{position:absolute;transform:translate(14px,-2px);background:var(--berry);color:#fff;font-size:10px;border-radius:99px;padding:1px 5px;font-weight:900}
+
+/* ===== 家長端 ===== */
+.parent .scroll{background:var(--parent-bg)}
+.parent-head{background:var(--parent-accent);color:#fff;padding:14px 16px;display:flex;align-items:center;gap:10px}
+.parent-head h1{font-size:17px;flex:1}
+.parent-tabs{display:flex;background:var(--parent-accent);padding:0 10px 10px;gap:6px}
+.parent-tabs button{flex:1;padding:9px 4px;border-radius:12px;font-size:13.5px;font-weight:800;color:rgba(255,255,255,.7);position:relative}
+.parent-tabs button.on{background:#fff;color:var(--parent-accent)}
+.parent-tabs .dot{position:absolute;top:4px;right:8px;width:8px;height:8px;border-radius:50%;background:var(--berry)}
+.lib-item{display:flex;align-items:center;gap:10px;background:#fff;border-radius:var(--r-sm);padding:11px 12px;margin-bottom:8px;border:2px solid transparent;box-shadow:var(--shadow)}
+.lib-item.sel{border-color:var(--primary);background:#F3F7FF}
+.lib-item .t-icon{font-size:24px;width:32px;text-align:center}
+.lib-item .nm{flex:1;font-size:14.5px;font-weight:700;min-width:0}
+.lib-item .del{color:#C9536B;font-size:13px;font-weight:700;padding:4px 8px}
+.lib-item .edt{color:var(--primary);font-size:13px;font-weight:700;padding:4px 8px}
+.seg-toggle{display:flex;background:#E4E9F2;border-radius:999px;padding:4px;margin-bottom:14px}
+.seg-toggle button{flex:1;padding:9px;border-radius:999px;font-size:14px;font-weight:800;color:var(--ink2)}
+.seg-toggle button.on{background:#fff;color:var(--ink);box-shadow:var(--shadow)}
+.approve-card{background:#fff;border-radius:var(--r-md);padding:14px;box-shadow:var(--shadow);margin-bottom:10px}
+.approve-actions{display:flex;gap:8px;margin-top:10px}
+.section-title{font-size:14px;font-weight:800;color:var(--ink2);margin:18px 4px 8px}
+.section-title:first-child{margin-top:0}
+.switch-row{display:flex;align-items:center;justify-content:space-between;padding:4px 0}
+.switch{position:relative;width:50px;height:28px;background:#D8DFEA;border-radius:99px;transition:.2s;flex-shrink:0}
+.switch.on{background:var(--mint)}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.switch.on::after{left:25px}
+
+/* ===== Modal ===== */
+.modal-mask{position:absolute;inset:0;background:rgba(20,30,55,.5);display:flex;align-items:center;justify-content:center;z-index:50;padding:24px;animation:fadeIn .2s}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{background:#fff;border-radius:var(--r-lg);padding:22px;width:100%;max-width:360px;max-height:82vh;overflow-y:auto;animation:pop .25s}
+@keyframes pop{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
+.modal h3{font-size:18px;margin-bottom:14px}
+.pin-dots{display:flex;justify-content:center;gap:14px;margin:18px 0}
+.pin-dots i{width:16px;height:16px;border-radius:50%;background:var(--line)}
+.pin-dots i.fill{background:var(--primary)}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.pin-pad button{padding:14px;font-size:20px;font-weight:800;background:#F1F4FA;border-radius:var(--r-sm)}
+.pin-pad button:active{background:#E1E8F5}
+.icon-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:12px}
+.icon-grid button{aspect-ratio:1;font-size:24px;border-radius:var(--r-sm);background:#F1F4FA;border:2px solid transparent}
+.icon-grid button.sel{border-color:var(--primary);background:#E9F0FF}
+
+/* ===== 慶祝動畫 ===== */
+#confetti{position:absolute;inset:0;pointer-events:none;z-index:80;overflow:hidden}
+.cf{position:absolute;top:-12px;width:10px;height:14px;border-radius:3px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(105vh) rotate(720deg);opacity:.9}}
+#toast{position:absolute;left:50%;bottom:110px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:10px 20px;border-radius:999px;font-size:14px;font-weight:700;opacity:0;transition:.25s;z-index:90;white-space:nowrap;pointer-events:none}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+/* ===== 注音（直式・右側；絕對定位不影響字高） ===== */
+.zc{display:inline-block;position:relative;padding-right:.6em}
+.zc.t{padding-right:.92em}
+.zc-z{position:absolute;right:0;top:50%;transform:translateY(-50%);width:.6em;display:flex;flex-direction:column;align-items:center;font-weight:400;opacity:.82;user-select:none;letter-spacing:0;line-height:1.05}
+.zc.t .zc-z{right:.32em}
+.zc-z i{font-style:normal;display:block;font-size:.5em;line-height:1.05}
+.zc-z .tn{position:absolute;left:100%;top:50%;transform:translateY(-58%);margin-left:1px}
+.zc-z .nt{margin-bottom:1px}
+.zc+.zc{margin-left:.05em}
+.t-name,.r-name,.hist-task{line-height:1.85}
+/* ===== 月曆 ===== */
+.cal-head{display:flex;align-items:center;justify-content:space-between;margin:4px 2px 12px}
+.cal-head h2{font-size:17px}
+.cal-nav{width:40px;height:40px;border-radius:50%;background:#fff;box-shadow:var(--shadow);font-size:18px;font-weight:900;color:var(--primary)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.cal-wd{text-align:center;font-size:12px;color:var(--ink2);font-weight:800;padding:2px 0 4px}
+.cal-cell{aspect-ratio:.92;background:#fff;border-radius:12px;box-shadow:var(--shadow);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:13.5px;font-weight:800;transition:transform .1s}
+.cal-cell.blank{background:transparent;box-shadow:none}
+.cal-cell.today{outline:3px solid var(--primary)}
+.cal-cell.future{opacity:.35}
+.cal-cell.has:active{transform:scale(.92)}
+.cal-cell .pts{font-size:10px;color:var(--coin-d);font-weight:900;background:#FFF3D6;border-radius:99px;padding:1px 5px;white-space:nowrap}
+.cal-cell .zero{width:6px;height:6px;border-radius:50%;background:var(--line)}
+.cal-sum{text-align:center;font-size:13.5px;color:var(--ink2);margin:12px 0 4px;font-weight:700}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ===== 多小孩 ===== */
+.kid-id{display:flex;align-items:center;gap:12px;flex:1;min-width:0;text-align:left;border-radius:18px;padding:2px 8px 2px 0;transition:transform .12s}
+.kid-id:active{transform:scale(.97)}
+.kid-name-row{display:flex;align-items:center;gap:6px}
+.caret{font-size:11px;font-weight:900;color:var(--primary-d);background:#fff;border-radius:99px;padding:2px 8px;box-shadow:var(--shadow);line-height:1.2}
+.kid-pick{display:flex;align-items:center;gap:12px;width:100%;background:#F5F8FE;border:2px solid transparent;border-radius:var(--r-md);padding:11px 12px;margin-bottom:9px;transition:transform .12s}
+.kid-pick:active{transform:scale(.97)}
+.kid-pick.on{border-color:var(--primary);background:#EAF0FF}
+.kid-pick .av{width:46px;height:46px;border-radius:50%;background:#fff;font-size:25px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;box-shadow:var(--shadow)}
+.kid-pick .av img{width:100%;height:100%;object-fit:cover}
+.kid-pick .nm{flex:1;min-width:0;text-align:left;font-weight:800;font-size:16.5px}
+.kid-pick .nm small{display:block;font-size:12px;color:var(--ink2);font-weight:700;margin-top:2px}
+.child-bar{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 4px;-webkit-overflow-scrolling:touch}
+.cchip{display:flex;align-items:center;gap:7px;background:#fff;border:2px solid var(--line);border-radius:999px;padding:5px 14px 5px 6px;font-weight:800;font-size:14px;white-space:nowrap;flex-shrink:0}
+.cchip .av{width:28px;height:28px;border-radius:50%;background:#F1F4FA;font-size:16px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
+.cchip .av img{width:100%;height:100%;object-fit:cover}
+.cchip.on{border-color:var(--primary);background:#EAF0FF;color:var(--primary-d)}
+.who{display:inline-flex;align-items:center;gap:5px;background:#EEF3FF;color:var(--primary-d);border-radius:999px;padding:2px 10px 2px 3px;font-size:12px;font-weight:800}
+.who .av{width:20px;height:20px;border-radius:50%;background:#fff;font-size:12px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
+.who .av img{width:100%;height:100%;object-fit:cover}
+.chk-row{display:flex;align-items:center;gap:9px;font-size:14px;font-weight:800;color:var(--ink);margin-top:12px}
+.chk{width:24px;height:24px;border-radius:8px;border:2px solid var(--line);background:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:transparent;flex-shrink:0}
+.chk.on{background:var(--primary);border-color:var(--primary);color:#fff}
+.lib-item .t-icon img{width:30px;height:30px;border-radius:50%;object-fit:cover;display:block;margin:auto}
+/* ===== PWA：瀏海 / 圓角螢幕安全區 ===== */
+.kid-head{padding-top:calc(18px + env(safe-area-inset-top))}
+.parent-head{padding-top:calc(14px + env(safe-area-inset-top))}
+#setup .scroll{padding-top:calc(36px + env(safe-area-inset-top))}
+.hint{font-size:12.5px;color:var(--ink2);line-height:1.75;margin-top:10px}
+.btn-row{display:flex;gap:10px}
+.btn-row>.btn{flex:1}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="confetti"></div>
+  <div id="toast"></div>
+
+  <!-- ========== 初始設定 ========== -->
+  <div id="setup" class="screen hidden">
+    <div class="scroll">
+      <h1 class="setup-title">🎪 小小任務家</h1>
+      <p class="setup-sub">完成任務．收集金幣．換到心愛的獎品！</p>
+      <div class="card">
+        <div class="field"><label>小朋友的名字</label><input type="text" id="su-name" placeholder="例如：小寶" maxlength="10"></div>
+        <div class="field"><label>年齡</label>
+          <select id="su-age"></select>
+        </div>
+        <div class="field"><label>選一個代表你的頭像</label>
+          <div class="avatar-grid" id="su-avatars"></div>
+          <button class="btn btn-ghost btn-sm btn-block" id="su-upload-btn">📷 或上傳自己的照片</button>
+          <input type="file" id="su-upload" accept="image/*" class="hidden">
+        </div>
+        <button class="btn btn-primary btn-block" id="su-go">開始冒險！🚀</button>
+        <button class="btn btn-ghost btn-sm btn-block" id="su-demo" style="margin-top:10px">🎪 先載入範例資料試玩</button>
+      </div>
+      <p style="text-align:center;font-size:12.5px;color:var(--ink2);line-height:1.7">家長模式預設密碼 0000，可在設定中修改<br>之後可到「家長模式 → 設定」新增更多小孩</p>
+    </div>
+  </div>
+
+  <!-- ========== 小孩端 ========== -->
+  <div id="kid" class="screen hidden">
+    <div class="kid-head">
+      <button class="kid-id" id="k-switch">
+        <div class="kid-avatar" id="k-avatar"></div>
+        <div style="min-width:0">
+          <div class="kid-name-row"><div class="kid-name" id="k-name"></div><span class="caret hidden" id="k-caret">切換 ▾</span></div>
+          <div class="kid-meta" id="k-meta"></div>
+        </div>
+      </button>
+      <button class="lock-btn" id="btn-lock" title="家長模式">🔒</button>
+    </div>
+    <div class="coin-hero">
+      <div class="coin-row">
+        <span class="coin-icon" id="coin-icon">🪙</span>
+        <div><div class="coin-num" id="coin-num">0</div><div class="coin-label">我的金幣</div></div>
+        <div class="streak" id="streak-box">🔥 連續達成 0 天</div>
+      </div>
+    </div>
+
+    <div class="scroll" id="kid-scroll">
+      <!-- 今日任務 -->
+      <div id="kv-today">
+        <div class="day-strip" id="day-strip"></div>
+        <div class="date-bar"><h2 id="today-title">今天的任務</h2><span class="pill pill-coin" id="today-pts"></span></div>
+        <div class="progress-strip" id="today-progress"></div>
+        <div id="today-list"></div>
+      </div>
+      <!-- 兌換專區 -->
+      <div id="kv-shop" class="hidden">
+        <div class="date-bar"><h2>🎁 兌換專區</h2></div>
+        <div id="shop-list"></div>
+        <div class="date-bar" style="margin-top:20px"><h2>📦 我的兌換紀錄</h2></div>
+        <div id="kid-redeem-list"></div>
+      </div>
+      <!-- 歷史回顧（月曆） -->
+      <div id="kv-history" class="hidden">
+        <div class="cal-head">
+          <button class="cal-nav" id="cal-prev">‹</button>
+          <h2 id="cal-title"></h2>
+          <button class="cal-nav" id="cal-next">›</button>
+        </div>
+        <div class="cal-grid" id="cal-grid"></div>
+        <div class="cal-sum" id="cal-sum"></div>
+      </div>
+    </div>
+
+    <div class="tabbar">
+      <button data-kv="today" class="on"><span class="ico">✅</span>今日任務</button>
+      <button data-kv="shop"><span class="ico">🎁</span>兌換獎品</button>
+      <button data-kv="history"><span class="ico">📅</span>紀錄</button>
+    </div>
+  </div>
+
+  <!-- ========== 家長端 ========== -->
+  <div id="parent" class="screen parent hidden">
+    <div class="parent-head">
+      <h1>👨‍👩‍👧 家長模式</h1>
+      <button class="btn btn-sm" style="background:rgba(255,255,255,.15);color:#fff" id="btn-exit-parent">返回小孩端</button>
+    </div>
+    <div class="parent-tabs">
+      <button data-pv="assign" class="on">出任務</button>
+      <button data-pv="approve">審核<span class="dot hidden" id="approve-dot"></span></button>
+      <button data-pv="rewards">獎品</button>
+      <button data-pv="settings">設定</button>
+    </div>
+    <div class="scroll">
+      <!-- 出任務 -->
+      <div id="pv-assign">
+        <div id="assign-who" class="hidden">
+          <div class="section-title" style="margin-top:0">出任務給誰</div>
+          <div class="child-bar" id="child-bar"></div>
+        </div>
+        <div class="card">
+          <div class="field"><label>選擇日期（可多選，常態任務一次鋪好）</label>
+            <div class="quick-row">
+              <button data-quick="7">未來 7 天</button>
+              <button data-quick="wd">平日</button>
+              <button data-quick="we">週末</button>
+              <button data-quick="clr">清除</button>
+            </div>
+            <div class="date-chips" id="date-chips"></div>
+          </div>
+          <div class="seg-toggle">
+            <button data-lib="basic" class="on">⭐ 基本任務</button>
+            <button data-lib="advanced">💎 進階任務</button>
+          </div>
+          <div id="lib-list"></div>
+          <button class="btn btn-ghost btn-sm btn-block" id="btn-new-task" style="margin-top:6px">＋ 自訂新任務</button>
+          <div class="chk-row hidden" id="assign-all-row"><span class="chk" id="assign-all-chk">✓</span>同時指派給所有小孩</div>
+        </div>
+        <button class="btn btn-primary btn-block" id="btn-assign">指派勾選的任務</button>
+        <div class="section-title" id="assigned-title">已指派清單（依所選日期）</div>
+        <div id="assigned-list"></div>
+      </div>
+      <!-- 審核 -->
+      <div id="pv-approve" class="hidden">
+        <div id="approve-list"></div>
+      </div>
+      <!-- 獎品 -->
+      <div id="pv-rewards" class="hidden">
+        <button class="btn btn-primary btn-block" id="btn-new-reward" style="margin-bottom:14px">＋ 新增獎品</button>
+        <div id="pr-reward-list"></div>
+        <div class="section-title">待核銷（小孩已兌換）</div>
+        <div id="pr-claim-list"></div>
+        <div class="section-title">已核銷紀錄</div>
+        <div id="pr-claimed-list"></div>
+      </div>
+      <!-- 設定 -->
+      <div id="pv-settings" class="hidden">
+        <div class="card hidden" id="install-card">
+          <div class="field" style="margin-bottom:10px"><label>📲 安裝到主畫面</label>
+            <div style="font-size:12.5px;color:var(--ink2)" id="install-tip"></div>
+          </div>
+          <button class="btn btn-primary btn-sm btn-block hidden" id="btn-install">立即安裝</button>
+        </div>
+        <div class="card">
+          <div class="field" style="margin-bottom:10px"><label>👨‍👩‍👧‍👦 小孩管理</label>
+            <div style="font-size:12.5px;color:var(--ink2)">任務庫與獎品全家共用；點數、指派紀錄、兌換紀錄各自獨立</div>
+          </div>
+          <div id="child-manage"></div>
+          <button class="btn btn-ghost btn-sm btn-block" id="btn-add-child" style="margin-top:6px">＋ 新增小孩</button>
+        </div>
+        <div class="card">
+          <div class="switch-row" style="margin-bottom:10px">
+            <div><b>顯示注音（小孩端）</b><div style="font-size:12.5px;color:var(--ink2)">任務與獎品名稱加注音</div></div>
+            <div class="switch" id="sw-zy"></div>
+          </div>
+          <div class="switch-row" style="margin-bottom:10px">
+            <div><b>完成免審核</b><div style="font-size:12.5px;color:var(--ink2)">開啟後小孩打勾即直接入點</div></div>
+            <div class="switch" id="sw-auto"></div>
+          </div>
+          <div class="switch-row hidden" id="row-lock">
+            <div><b>切換小孩需要密碼</b><div style="font-size:12.5px;color:var(--ink2)">避免兄弟姊妹互相打勾、亂兌換</div></div>
+            <div class="switch" id="sw-lock"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="field" style="margin-bottom:10px"><label>💾 資料備份</label>
+            <div style="font-size:12.5px;color:var(--ink2)">資料只存在這台裝置的瀏覽器裡。<b>換手機、清除瀏覽器資料前請務必先下載備份</b>，這是目前唯一的防遺失手段。</div>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-ghost btn-sm" id="btn-export">⬇️ 下載備份</button>
+            <button class="btn btn-ghost btn-sm" id="btn-import">⬆️ 還原備份</button>
+          </div>
+          <input type="file" id="import-file" accept="application/json,.json" class="hidden">
+          <div class="hint" id="storage-note"></div>
+        </div>
+        <div class="card">
+          <div class="field"><label>修改家長密碼（4 位數字）</label><input type="password" id="set-pin" maxlength="4" inputmode="numeric" placeholder="****"></div>
+          <button class="btn btn-ghost btn-sm btn-block" id="btn-save-pin">儲存密碼</button>
+        </div>
+        <div class="card">
+          <div class="field"><label>任務庫 / 獎品維護</label><div style="font-size:12.5px;color:var(--ink2);margin-bottom:8px">把預設任務與獎品還原成出廠內容（自訂項目與已指派紀錄不受影響）</div></div>
+          <button class="btn btn-ghost btn-sm btn-block" id="btn-restore-presets">↺ 還原預設任務與獎品</button>
+        </div>
+        <button class="btn btn-danger btn-block" id="btn-reset">🗑 清除所有資料（重新開始）</button>
+        <div class="hint" style="text-align:center" id="ver-note"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 各種 Modal ========== -->
+  <div id="modal-pin" class="modal-mask hidden">
+    <div class="modal" style="text-align:center">
+      <h3>🔒 輸入家長密碼</h3>
+      <div class="pin-dots" id="pin-dots"><i></i><i></i><i></i><i></i></div>
+      <div class="pin-pad" id="pin-pad"></div>
+      <button class="btn btn-ghost btn-sm btn-block" style="margin-top:12px" id="pin-cancel">取消</button>
+    </div>
+  </div>
+
+  <div id="modal-switch" class="modal-mask hidden">
+    <div class="modal">
+      <h3>🙋 換誰來玩？</h3>
+      <div id="switch-list"></div>
+      <button class="btn btn-ghost btn-block btn-sm" style="margin-top:6px" data-close>關閉</button>
+    </div>
+  </div>
+
+  <div id="modal-child" class="modal-mask hidden">
+    <div class="modal">
+      <h3 id="mk-title">＋ 新增小孩</h3>
+      <div class="field"><label>名字</label><input type="text" id="mk-name" maxlength="10" placeholder="例如：小美"></div>
+      <div class="field"><label>年齡</label><select id="mk-age"></select></div>
+      <div class="field"><label>選一個代表的頭像</label>
+        <div class="avatar-grid" id="mk-avatars"></div>
+        <button class="btn btn-ghost btn-sm btn-block" id="mk-upload-btn">📷 或上傳照片</button>
+        <input type="file" id="mk-upload" accept="image/*" class="hidden">
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-ghost" style="flex:1" data-close>取消</button>
+        <button class="btn btn-primary" style="flex:1" id="mk-save">儲存</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-task" class="modal-mask hidden">
+    <div class="modal">
+      <h3 id="mt-title">＋ 自訂新任務</h3>
+      <div class="field"><label>任務名稱</label><input type="text" id="mt-name" maxlength="20" placeholder="例如：自己整理房間"></div>
+      <div class="field"><label>選個圖示</label><div class="icon-grid" id="mt-icons"></div></div>
+      <div class="field"><label>類型</label>
+        <select id="mt-type"><option value="basic">⭐ 基本任務</option><option value="advanced">💎 進階任務</option></select>
+      </div>
+      <div class="field"><label>點數</label><input type="number" id="mt-pts" min="1" max="999" value="5"></div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-ghost" style="flex:1" data-close>取消</button>
+        <button class="btn btn-primary" style="flex:1" id="mt-save">加入任務庫</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-reward" class="modal-mask hidden">
+    <div class="modal">
+      <h3 id="mr-title">＋ 新增獎品</h3>
+      <div class="field"><label>獎品名稱</label><input type="text" id="mr-name" maxlength="20" placeholder="例如：去公園野餐"></div>
+      <div class="field"><label>選個圖示</label><div class="icon-grid" id="mr-icons"></div></div>
+      <div class="field"><label>所需點數</label><input type="number" id="mr-pts" min="1" max="9999" value="30"></div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-ghost" style="flex:1" data-close>取消</button>
+        <button class="btn btn-primary" style="flex:1" id="mr-save">新增</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-confirm" class="modal-mask hidden">
+    <div class="modal" style="text-align:center">
+      <div style="font-size:52px" id="mc-icon">🎁</div>
+      <h3 id="mc-title" style="margin:10px 0 6px"></h3>
+      <p id="mc-text" style="font-size:14.5px;color:var(--ink2);margin-bottom:18px"></p>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-ghost" style="flex:1" data-close>再想想</button>
+        <button class="btn btn-primary" style="flex:1" id="mc-ok">確定</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-day" class="modal-mask hidden">
+    <div class="modal">
+      <h3 id="md-title"></h3>
+      <div id="md-list"></div>
+      <button class="btn btn-ghost btn-block btn-sm" style="margin-top:6px" data-close>關閉</button>
+    </div>
+  </div>
+</div>
+<script src="zhuyin-data.js"></script>
+<script>
+
+/* 小小任務家 KidQuest v3.3.1 — 多小孩切換 + PWA（可安裝／離線）+ 備份匯出匯入
+   注音字典 ZY_CHAR / ZY_PHRASE 由 zhuyin-data.js 提供（需先於本檔載入） */
+"use strict";
+const APP_VER = "3.3.1";
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const KEY = "kidquest_v2";
+const todayStr = (off = 0) => { const d = new Date(); d.setDate(d.getDate() + off); const p = n => String(n).padStart(2, '0'); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`; };
+const uid = () => Math.random().toString(36).slice(2, 9);
+const deep = o => JSON.parse(JSON.stringify(o));
+const fmtDate = ds => { const [y, m, d] = ds.split("-"); const w = "日一二三四五六"[new Date(ds + "T00:00").getDay()]; return `${+m}/${+d}（${w}）`; };
+
+/* ---------- 預設任務庫與獎品 ---------- */
+const PRESET_TASKS = [
+  { id: "b1", name: "自己整理書包", icon: "🎒", pts: 3, type: "basic" },
+  { id: "b2", name: "早晚刷牙", icon: "🪥", pts: 2, type: "basic" },
+  { id: "b3", name: "寫完當天功課", icon: "✏️", pts: 5, type: "basic" },
+  { id: "b4", name: "收拾自己的玩具", icon: "🧸", pts: 3, type: "basic" },
+  { id: "b5", name: "幫忙擺碗筷", icon: "🍚", pts: 3, type: "basic" },
+  { id: "b6", name: "閱讀 20 分鐘", icon: "📖", pts: 5, type: "basic" },
+  { id: "b7", name: "幫忙倒垃圾", icon: "🗑️", pts: 3, type: "basic" },
+  { id: "b8", name: "九點前上床睡覺", icon: "🌙", pts: 3, type: "basic" },
+  { id: "a1", name: "考試 90 分以上", icon: "💯", pts: 20, type: "advanced" },
+  { id: "a2", name: "寫一篇日記", icon: "📔", pts: 10, type: "advanced" },
+  { id: "a3", name: "自己洗好餐盒", icon: "🧼", pts: 8, type: "advanced" },
+  { id: "a4", name: "運動 30 分鐘", icon: "⚽", pts: 10, type: "advanced" },
+  { id: "a5", name: "背完一課英文單字", icon: "🔤", pts: 15, type: "advanced" },
+];
+const PRESET_REWARDS = [
+  { id: "r1", name: "看 30 分鐘卡通", icon: "📺", pts: 15 },
+  { id: "r2", name: "冰淇淋一支", icon: "🍦", pts: 25 },
+  { id: "r3", name: "去公園野餐", icon: "🧺", pts: 60 },
+  { id: "r4", name: "小樂高一盒", icon: "🧱", pts: 120 },
+];
+const AVATARS = ["🦖", "🐱", "🦄", "🚀", "🐼", "🍓", "🐧", "🦊"];
+const ICON_SET = ["⭐", "🎒", "🪥", "✏️", "🧸", "🍚", "📖", "🗑️", "🌙", "💯", "📔", "🧼", "⚽", "🔤", "🎹", "🐶", "🌱", "🧹", "🥛", "🛏️", "🎨", "🚿", "👟", "❤️"];
+const RICON_SET = ["🎁", "📺", "🍦", "🧺", "🧱", "🎮", "🍭", "📚", "🎢", "🧋", "🚲", "🎬", "🍕", "⚽", "🎪", "💰", "🖍️", "🎂"];
+
+/* ---------- 注音引擎（ZY_CHAR / ZY_PHRASE 由建置腳本注入 zhuyin-data.js） ---------- */
+const HAN = /[一-鿿]/;
+const ZY_TONES = "ˊˇˋ˙";
+function rubyC(c, z) {
+  if (!z) return c;
+  let tone = "";
+  const syms = [...z].filter(ch => { if (ZY_TONES.includes(ch)) { tone = ch; return false; } return true; });
+  const col = (tone === "˙" ? `<i class="nt">˙</i>` : "")
+    + syms.map(s => `<i>${s}</i>`).join("")
+    + (tone && tone !== "˙" ? `<i class="tn">${tone}</i>` : "");
+  return `<span class="zc${tone && tone !== "˙" ? " t" : ""}"><span class="zc-h">${c}</span><span class="zc-z">${col}</span></span>`;
+}
+function zy(text) {
+  if (!S || !S.zhuyin || !text) return text;
+  let out = "", i = 0;
+  while (i < text.length) {
+    const ch = text[i];
+    if (!HAN.test(ch)) { out += ch; i++; continue; }
+    let hit = null;
+    for (let L = Math.min(6, text.length - i); L >= 2; L--) {
+      const seg = text.slice(i, i + L);
+      if (ZY_PHRASE[seg]) { hit = [seg, ZY_PHRASE[seg]]; break; }
+    }
+    if (hit) { const [seg, arr] = hit; for (let k = 0; k < seg.length; k++) out += rubyC(seg[k], arr[k]); i += seg.length; }
+    else { out += rubyC(ch, ZY_CHAR[ch]); i++; }
+  }
+  return out;
+}
+
+/* ---------- 狀態 ----------
+   v3 資料結構：
+   S = {
+     v, children:[{id,name,age,avatar}], activeId,
+     pin, autoApprove, zhuyin, switchLock,
+     tasks:[], rewards:[],                  // 全家共用
+     data:{ childId:{ days:{}, redemptions:[] } }   // 各小孩獨立
+   }
+---------------------------------- */
+let S = null;
+function defaultState() {
+  return {
+    v: 3,
+    children: [], activeId: null,
+    pin: "0000", autoApprove: false, zhuyin: true, switchLock: false,
+    tasks: deep(PRESET_TASKS),
+    rewards: deep(PRESET_REWARDS),
+    data: {},
+  };
+}
+function save() { localStorage.setItem(KEY, JSON.stringify(S)); }
+function load() { try { S = JSON.parse(localStorage.getItem(KEY)); } catch (e) { S = null; } }
+
+/* v2（單一小孩）→ v3（多小孩）就地升級，舊使用者資料不遺失 */
+function migrate() {
+  if (!S) return;
+  if (!S.data) S.data = {};
+  if (!S.children) {
+    S.children = [];
+    if (S.child) {                       // 舊版：頂層 child / days / redemptions
+      const id = uid();
+      S.children.push({ id, name: S.child.name, age: S.child.age, avatar: S.child.avatar });
+      S.data[id] = { days: S.days || {}, redemptions: S.redemptions || [] };
+      S.activeId = id;
+    }
+  }
+  delete S.child; delete S.days; delete S.redemptions;
+  S.children.forEach(c => { if (!S.data[c.id]) S.data[c.id] = { days: {}, redemptions: [] }; });
+  Object.keys(S.data).forEach(id => { if (!S.children.some(c => c.id === id)) delete S.data[id]; });
+  if (!S.activeId || !S.children.some(c => c.id === S.activeId)) S.activeId = S.children.length ? S.children[0].id : null;
+  if (S.zhuyin === undefined) S.zhuyin = true;
+  if (S.switchLock === undefined) S.switchLock = false;
+  if (!/^\d{4}$/.test(S.pin || "")) S.pin = "0000";
+  if (!S.tasks) S.tasks = deep(PRESET_TASKS);
+  if (!S.rewards) S.rewards = deep(PRESET_REWARDS);
+  S.v = 3;
+}
+
+/* ---------- 小孩存取 ---------- */
+const kidOf = id => S.children.find(c => c.id === id) || null;
+const kid = () => kidOf(S.activeId) || S.children[0] || null;
+function bucket(cid) {
+  const id = cid || S.activeId;
+  if (!S.data[id]) S.data[id] = { days: {}, redemptions: [] };
+  return S.data[id];
+}
+const D = cid => bucket(cid).days;          // 某位小孩的每日任務
+const R = cid => bucket(cid).redemptions;   // 某位小孩的兌換紀錄
+function addChild(c) {
+  const id = uid();
+  S.children.push({ id, name: c.name, age: c.age, avatar: c.avatar });
+  S.data[id] = { days: {}, redemptions: [] };
+  if (!S.activeId) S.activeId = id;
+  save(); return id;
+}
+function removeChild(id) {
+  S.children = S.children.filter(c => c.id !== id);
+  delete S.data[id];
+  if (S.activeId === id) S.activeId = S.children.length ? S.children[0].id : null;
+  save();
+}
+const avatarHTML = a => (a && a.startsWith("data:")) ? `<img src="${a}">` : (a || "🙂");
+const whoTag = c => `<span class="who"><span class="av">${avatarHTML(c.avatar)}</span>${c.name}</span>`;
+
+/* ---------- Demo 種子資料（兩位小孩，可直接體驗切換） ---------- */
+function seedDemo() {
+  S = defaultState();
+  const A = addChild({ name: "小寶", age: 8, avatar: "🦖" });
+  const B = addChild({ name: "小美", age: 6, avatar: "🦄" });
+  S.activeId = A;
+  const pick = (id, status) => { const t = S.tasks.find(x => x.id === id); return { ...t, tid: t.id, id: uid(), status }; };
+  const da = D(A);
+  da[todayStr(-3)] = [pick("b1", "done"), pick("b3", "done"), pick("b6", "done")];
+  da[todayStr(-2)] = [pick("b2", "done"), pick("b3", "done"), pick("a2", "done"), pick("b7", "todo")];
+  da[todayStr(-1)] = [pick("b1", "done"), pick("b3", "done"), pick("b8", "done"), pick("a4", "done")];
+  da[todayStr(0)] = [pick("b1", "todo"), pick("b3", "todo"), pick("b6", "pending"), pick("a5", "todo")];
+  da[todayStr(1)] = [pick("b4", "todo"), pick("b5", "todo"), pick("b2", "todo")];
+  da[todayStr(2)] = [pick("b6", "todo")];
+  R(A).push({ id: uid(), name: "看 30 分鐘卡通", icon: "📺", pts: 15, date: todayStr(-1), status: "claimed", claimedDate: todayStr(-1) });
+  const db = D(B);
+  db[todayStr(-2)] = [pick("b2", "done"), pick("b4", "done")];
+  db[todayStr(-1)] = [pick("b2", "done"), pick("b4", "todo"), pick("b8", "done")];
+  db[todayStr(0)] = [pick("b2", "todo"), pick("b4", "pending"), pick("b8", "todo")];
+  db[todayStr(1)] = [pick("b2", "todo"), pick("b6", "todo")];
+  save();
+}
+
+/* ---------- 點數計算（皆以小孩為單位） ---------- */
+const earned = cid => Object.values(D(cid)).flat().filter(t => t.status === "done").reduce((a, t) => a + t.pts, 0);
+const spent = cid => R(cid).reduce((a, r) => a + r.pts, 0);
+const balance = cid => earned(cid) - spent(cid);
+const pendingCount = cid => Object.values(D(cid)).flat().filter(t => t.status === "pending").length;
+function streak(cid) {
+  const days = D(cid);
+  let n = 0;
+  for (let i = 0; ; i++) {
+    const ds = todayStr(-i), list = days[ds];
+    const ok = list && list.some(t => t.status === "done");
+    if (ok) n++;
+    else if (i === 0) continue; // 今天還沒完成不打斷連續
+    else break;
+    if (i > 365) break;
+  }
+  return n;
+}
+
+/* ---------- 畫面切換 ---------- */
+function show(id) { ["setup", "kid", "parent"].forEach(s => $("#" + s).classList.toggle("hidden", s !== id)); }
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), 1800); }
+function confetti() {
+  const box = $("#confetti"), colors = ["#FFB300", "#5B7FFF", "#FF6B9A", "#2EC27E", "#FFD65C"];
+  for (let i = 0; i < 36; i++) {
+    const c = document.createElement("i"); c.className = "cf";
+    c.style.left = Math.random() * 100 + "%";
+    c.style.background = colors[i % colors.length];
+    c.style.animationDuration = (1 + Math.random() * 1.2) + "s";
+    c.style.animationDelay = (Math.random() * .3) + "s";
+    box.appendChild(c); setTimeout(() => c.remove(), 2600);
+  }
+}
+function bounceCoin() { const c = $("#coin-icon"); c.classList.remove("bounce"); void c.offsetWidth; c.classList.add("bounce"); }
+
+/* ---------- 頭像選擇格（初始設定 / 小孩 Modal 共用） ---------- */
+function avatarGrid(el, cur, on) {
+  const up = cur && cur.startsWith("data:");
+  el.innerHTML = (up ? `<button class="avatar-opt sel" data-a="${cur}"><img src="${cur}"></button>` : "")
+    + AVATARS.map(a => `<button class="avatar-opt${!up && a === cur ? " sel" : ""}" data-a="${a}">${a}</button>`).join("");
+  el.onclick = e => { const b = e.target.closest(".avatar-opt"); if (!b) return; on(b.dataset.a); avatarGrid(el, b.dataset.a, on); };
+}
+function readAvatar(input, cb) {
+  const f = input.files[0]; if (!f) { input.value = ""; return; }
+  if (!/^image\//.test(f.type)) { input.value = ""; return toast("請選擇圖片檔"); }
+  const r = new FileReader();
+  r.onload = () => {
+    const img = new Image();
+    img.onerror = () => toast("這張圖片讀不起來，換一張試試");
+    img.onload = () => {
+      const side = Math.min(img.width, img.height);          // 置中裁成正方形，頭像不變形
+      const out = Math.min(256, side) || 1;                  // 最長邊 256px
+      const cv = document.createElement("canvas");
+      cv.width = cv.height = out;
+      const cx = cv.getContext("2d");
+      cx.fillStyle = "#fff"; cx.fillRect(0, 0, out, out);
+      cx.drawImage(img, (img.width - side) / 2, (img.height - side) / 2, side, side, 0, 0, out, out);
+      cb(cv.toDataURL("image/jpeg", 0.8));                   // 壓縮後約 10～20KB
+    };
+    img.src = r.result;
+  };
+  r.readAsDataURL(f);
+  input.value = "";
+}
+
+/* ---------- 初始設定（第一位小孩） ---------- */
+let suAvatar = AVATARS[0];
+function initSetup() {
+  const sel = $("#su-age");
+  sel.innerHTML = Array.from({ length: 8 }, (_, i) => `<option value="${i + 5}">${i + 5} 歲</option>`).join("");
+  sel.value = 8;
+  suAvatar = AVATARS[0];
+  avatarGrid($("#su-avatars"), suAvatar, a => suAvatar = a);
+  $("#su-upload-btn").onclick = () => $("#su-upload").click();
+  $("#su-upload").onchange = e => readAvatar(e.target, url => { suAvatar = url; avatarGrid($("#su-avatars"), suAvatar, a => suAvatar = a); });
+  $("#su-go").onclick = () => {
+    const name = $("#su-name").value.trim();
+    if (!name) return toast("先填上小朋友的名字喔");
+    const id = addChild({ name, age: +$("#su-age").value, avatar: suAvatar });
+    S.activeId = id; save();
+    $("#su-name").value = "";
+    show("kid"); renderKid(); confetti();
+  };
+}
+
+/* ---------- 小孩端 ---------- */
+let kidView = "today";
+let kidDayOff = 0;
+const DAY_LABEL = { "-3": "大前天", "-2": "前天", "-1": "昨天", "0": "今天", "1": "明天", "2": "後天", "3": "大後天" };
+function renderKid() {
+  const c = kid();
+  if (!c) { show("setup"); initSetup(); return; }
+  $("#k-avatar").innerHTML = avatarHTML(c.avatar);
+  $("#k-name").textContent = c.name;
+  $("#k-meta").textContent = `${c.age} 歲的任務高手`;
+  $("#k-caret").classList.toggle("hidden", S.children.length < 2);
+  $("#coin-num").textContent = balance();
+  $("#streak-box").textContent = `🔥 連續達成 ${streak()} 天`;
+  ["today", "shop", "history"].forEach(v => $("#kv-" + v).classList.toggle("hidden", v !== kidView));
+  $$(".tabbar button").forEach(b => b.classList.toggle("on", b.dataset.kv === kidView));
+  if (kidView === "today") renderToday();
+  if (kidView === "shop") renderShop();
+  if (kidView === "history") renderCalendar();
+}
+function renderToday() {
+  const days = D(), ds = todayStr(kidDayOff), list = days[ds] || [];
+  // 日期膠囊列 ±3 天
+  let strip = "";
+  for (let o = -3; o <= 3; o++) {
+    const d2 = todayStr(o), has = (days[d2] || []).length > 0;
+    const dt = new Date(d2 + "T00:00");
+    strip += `<button class="day-chip ${o === kidDayOff ? "on" : ""}" data-off="${o}">
+      <span class="dc-w">${"日一二三四五六"[dt.getDay()]}</span><span>${dt.getDate()}</span>
+      <span class="dc-dot ${has ? "" : "off"}"></span></button>`;
+  }
+  $("#day-strip").innerHTML = strip;
+  $("#today-title").textContent = `${DAY_LABEL[kidDayOff]}的任務 ${fmtDate(ds)}`;
+  const total = list.reduce((a, t) => a + t.pts, 0);
+  $("#today-pts").textContent = list.length ? `共 ${total} 點` : "";
+  $("#today-progress").innerHTML = list.map(t => `<span class="seg${t.status === "done" ? " on" : ""}"></span>`).join("");
+  if (!list.length) {
+    $("#today-list").innerHTML = kidDayOff < 0
+      ? `<div class="empty"><span class="big">💤</span>這一天沒有任務紀錄</div>`
+      : `<div class="empty"><span class="big">📣</span>${DAY_LABEL[kidDayOff]}還沒有任務！<br>快去提醒爸爸媽媽出任務吧～</div>`;
+    return;
+  }
+  const isFuture = ds > todayStr();
+  $("#today-list").innerHTML = list.map(t => {
+    const chk = t.status === "todo"
+      ? (isFuture ? `<div class="check todo" style="opacity:.35"></div>` : `<button class="check todo" data-done="${t.id}">✓</button>`)
+      : t.status === "pending" ? `<div class="check pending">⏳</div>`
+        : `<div class="check done">✓</div>`;
+    const sub = t.status === "pending" ? `<span class="pill pill-wait">等家長確認中</span>`
+      : `<span class="pill ${t.type === "advanced" ? "pill-adv" : "pill-basic"}">${t.type === "advanced" ? "💎 進階" : "⭐ 基本"}</span> <span class="pill pill-coin">+${t.pts} 點</span>${isFuture ? ` <span class="pill pill-wait">還沒到喔</span>` : ""}`;
+    return `<div class="task ${t.type === "advanced" ? "adv" : ""} ${t.status === "done" ? "done" : ""}">
+      <span class="t-icon">${t.icon}</span>
+      <div class="t-body"><div class="t-name">${zy(t.name)}</div><div class="t-sub">${sub}</div></div>${chk}</div>`;
+  }).join("");
+}
+function kidComplete(id) {
+  const ds = todayStr(kidDayOff); if (ds > todayStr()) return;
+  const t = (D()[ds] || []).find(x => x.id === id); if (!t) return;
+  if (S.autoApprove) {
+    t.status = "done"; save(); bounceCoin(); confetti(); toast(`太棒了！獲得 ${t.pts} 點 🪙`);
+  } else {
+    t.status = "pending"; save(); toast("已送出，等家長確認！");
+  }
+  renderKid();
+}
+function renderShop() {
+  const bal = balance();
+  $("#shop-list").innerHTML = S.rewards.length ? S.rewards.map(r => {
+    const ok = bal >= r.pts, pct = Math.min(100, Math.round(bal / r.pts * 100));
+    return `<div class="reward">
+      <span class="r-icon">${r.icon}</span>
+      <div class="r-body"><div class="r-name">${zy(r.name)}</div>
+        ${ok ? `<span class="pill pill-coin">${r.pts} 點</span>`
+        : `<div class="bar"><i style="width:${pct}%"></i></div><div class="bar-txt">${bal} / ${r.pts} 點 · 還差 ${r.pts - bal} 點，加油！</div>`}
+      </div>
+      ${ok ? `<button class="btn btn-mint btn-sm" data-redeem="${r.id}">兌換</button>` : ""}
+    </div>`;
+  }).join("") : `<div class="empty"><span class="big">🎪</span>還沒有獎品，請家長設定！</div>`;
+  const reds = [...R()].sort((a, b) => b.date.localeCompare(a.date));
+  $("#kid-redeem-list").innerHTML = reds.length ? reds.map(r =>
+    `<div class="redeem-item"><span class="r-icon" style="font-size:26px">${r.icon}</span>
+      <div style="flex:1"><b style="font-size:14.5px">${zy(r.name)}</b><div style="font-size:12.5px;color:var(--ink2)">${fmtDate(r.date)} · ${r.pts} 點</div></div>
+      ${r.status === "claimed" ? `<span class="pill pill-mint">✔ 已領到</span>` : `<span class="pill pill-wait">找家長領獎</span>`}
+    </div>`).join("") : `<div class="empty">還沒有兌換過獎品</div>`;
+}
+function askRedeem(rid) {
+  const r = S.rewards.find(x => x.id === rid); if (!r) return;
+  openConfirm(r.icon, `兌換「${r.name}」？`, `會用掉 ${r.pts} 點金幣，兌換後拿給家長按「發獎」就可以領獎囉！`, () => {
+    R().push({ id: uid(), name: r.name, icon: r.icon, pts: r.pts, date: todayStr(), status: "pending", claimedDate: null });
+    save(); confetti(); bounceCoin(); toast("兌換成功！快找家長領獎 🎉"); renderKid();
+  });
+}
+let calYM = null; // [year, month(0-11)]
+function renderCalendar() {
+  if (!calYM) { const n = new Date(); calYM = [n.getFullYear(), n.getMonth()]; }
+  const days = D(), [y, m] = calYM;
+  $("#cal-title").textContent = `${y} 年 ${m + 1} 月`;
+  const first = new Date(y, m, 1), daysInM = new Date(y, m + 1, 0).getDate();
+  const p = n => String(n).padStart(2, "0");
+  let cells = "日一二三四五六".split("").map(w => `<div class="cal-wd">${w}</div>`).join("");
+  for (let i = 0; i < first.getDay(); i++) cells += `<div class="cal-cell blank"></div>`;
+  let monthPts = 0;
+  for (let d = 1; d <= daysInM; d++) {
+    const ds = `${y}-${p(m + 1)}-${p(d)}`;
+    const list = days[ds] || [];
+    const got = list.filter(t => t.status === "done").reduce((a, t) => a + t.pts, 0);
+    monthPts += got;
+    const isToday = ds === todayStr(), isFuture = ds > todayStr();
+    const cls = ["cal-cell", isToday ? "today" : "", isFuture ? "future" : "", list.length ? "has" : ""].join(" ");
+    const mark = got > 0 ? `<span class="pts">+${got}</span>` : list.length ? `<span class="zero"></span>` : `<span style="height:14px"></span>`;
+    cells += `<div class="${cls}" ${list.length ? `data-day="${ds}"` : ""}><span>${d}</span>${mark}</div>`;
+  }
+  $("#cal-grid").innerHTML = cells;
+  $("#cal-sum").textContent = `🪙 這個月共獲得 ${monthPts} 點`;
+}
+function shiftMonth(d) { calYM[1] += d; if (calYM[1] < 0) { calYM[1] = 11; calYM[0]--; } if (calYM[1] > 11) { calYM[1] = 0; calYM[0]++; } renderCalendar(); }
+function openDayModal(ds) {
+  const list = D()[ds] || [];
+  const got = list.filter(t => t.status === "done").reduce((a, t) => a + t.pts, 0);
+  $("#md-title").textContent = `${fmtDate(ds)} · 🪙 獲得 ${got} 點`;
+  $("#md-list").innerHTML = list.map(t => {
+    const st = t.status === "done" ? `<span class="pts">+${t.pts}</span>`
+      : t.status === "pending" ? `<span class="pts" style="color:#C77A12">待確認</span>`
+        : `<span class="pts" style="color:var(--ink2);font-weight:700">未完成</span>`;
+    return `<div class="hist-task ${t.status === "done" ? "" : "miss"}"><span class="t-icon">${t.icon}</span>${zy(t.name)}${st}</div>`;
+  }).join("");
+  $("#modal-day").classList.remove("hidden");
+}
+
+/* ---------- 切換小孩 ---------- */
+function openSwitch() {
+  if (S.children.length < 2) return;
+  const go = () => { drawSwitch(); $("#modal-switch").classList.remove("hidden"); };
+  S.switchLock ? openPin(go) : go();
+}
+function drawSwitch() {
+  $("#switch-list").innerHTML = S.children.map(c => {
+    const pd = pendingCount(c.id);
+    return `<button class="kid-pick ${c.id === S.activeId ? "on" : ""}" data-pick="${c.id}">
+      <span class="av">${avatarHTML(c.avatar)}</span>
+      <span class="nm">${c.name}<small>🪙 ${balance(c.id)} 點${pd ? ` · ⏳ ${pd} 項待確認` : ""}</small></span>
+      ${c.id === S.activeId ? `<span class="pill pill-mint">使用中</span>` : ""}
+    </button>`;
+  }).join("");
+}
+function switchTo(id) {
+  if (!kidOf(id)) return;
+  const first = S.activeId !== id;
+  S.activeId = id; save();
+  kidDayOff = 0; calYM = null;
+  $("#modal-switch").classList.add("hidden");
+  show("kid"); renderKid();
+  if (first) toast(`換 ${kidOf(id).name} 囉！`);
+}
+
+/* ---------- PIN ---------- */
+let pinBuf = "", pinCb = null;
+function openPin(cb) {
+  pinBuf = ""; pinCb = cb; drawPin();
+  $("#modal-pin").classList.remove("hidden");
+}
+function drawPin() { $$("#pin-dots i").forEach((d, i) => d.classList.toggle("fill", i < pinBuf.length)); }
+function initPin() {
+  $("#pin-pad").innerHTML = [1, 2, 3, 4, 5, 6, 7, 8, 9, "", 0, "⌫"].map(k => k === "" ? "<span></span>" : `<button data-k="${k}">${k}</button>`).join("");
+  $("#pin-pad").onclick = e => {
+    const b = e.target.closest("button"); if (!b) return;
+    if (b.dataset.k === "⌫") pinBuf = pinBuf.slice(0, -1);
+    else if (pinBuf.length < 4) pinBuf += b.dataset.k;
+    drawPin();
+    if (pinBuf.length === 4) setTimeout(() => {
+      if (pinBuf === S.pin) { $("#modal-pin").classList.add("hidden"); pinCb && pinCb(); }
+      else { toast("密碼不對喔"); pinBuf = ""; drawPin(); }
+    }, 120);
+  };
+  $("#pin-cancel").onclick = () => $("#modal-pin").classList.add("hidden");
+}
+
+/* ---------- 家長端 ---------- */
+let pView = "assign", libType = "basic", libSel = new Set();
+let assignSel = new Set([todayStr()]);
+let assignAll = false;
+function renderParent() {
+  ["assign", "approve", "rewards", "settings"].forEach(v => $("#pv-" + v).classList.toggle("hidden", v !== pView));
+  $$(".parent-tabs button").forEach(b => b.classList.toggle("on", b.dataset.pv === pView));
+  const pend = S.children.reduce((a, c) => a + pendingCount(c.id), 0);
+  $("#approve-dot").classList.toggle("hidden", !pend);
+  if (pView === "assign") renderAssign();
+  if (pView === "approve") renderApprove();
+  if (pView === "rewards") renderRewards();
+  if (pView === "settings") renderSettings();
+}
+function renderAssign() {
+  const multi = S.children.length > 1, c = kid();
+  $("#assign-who").classList.toggle("hidden", !multi);
+  $("#assign-all-row").classList.toggle("hidden", !multi);
+  $("#assign-all-chk").classList.toggle("on", assignAll);
+  if (multi) $("#child-bar").innerHTML = S.children.map(x =>
+    `<button class="cchip ${x.id === S.activeId ? "on" : ""}" data-cchip="${x.id}"><span class="av">${avatarHTML(x.avatar)}</span>${x.name}</button>`).join("");
+  // 未來 14 天日期格（點點代表「目前這位小孩」當天已有任務）
+  const days = c ? D() : {};
+  let chips = "";
+  for (let o = 0; o < 14; o++) {
+    const ds = todayStr(o), dt = new Date(ds + "T00:00");
+    const has = (days[ds] || []).length > 0;
+    chips += `<button class="dchip ${assignSel.has(ds) ? "on" : ""}" data-dchip="${ds}">
+      <span class="dw">${o === 0 ? "今天" : "週" + "日一二三四五六"[dt.getDay()]}</span><span>${dt.getMonth() + 1}/${dt.getDate()}</span>
+      <span class="dd ${has ? "" : "off"}"></span></button>`;
+  }
+  $("#date-chips").innerHTML = chips;
+  $$(".seg-toggle [data-lib]").forEach(b => b.classList.toggle("on", b.dataset.lib === libType));
+  const lib = S.tasks.filter(t => t.type === libType);
+  $("#lib-list").innerHTML = lib.map(t =>
+    `<div class="lib-item ${libSel.has(t.id) ? "sel" : ""}" data-sel="${t.id}">
+      <span class="t-icon">${t.icon}</span><span class="nm">${t.name}</span>
+      <span class="pill pill-coin">${t.pts} 點</span>
+      <button class="edt" data-edittask="${t.id}">編輯</button><button class="del" data-deltask="${t.id}">刪除</button>
+    </div>`).join("") || `<div class="empty">此分類還沒有任務</div>`;
+  // 依所選日期分組顯示已指派（只看目前這位小孩）
+  $("#assigned-title").textContent = c ? `已指派清單（${c.name}．依所選日期）` : "已指派清單";
+  if (!c) { $("#assigned-list").innerHTML = `<div class="empty">請先到「設定」新增小孩</div>`; return; }
+  const dates = (assignSel.size ? [...assignSel] : [todayStr()]).sort();
+  $("#assigned-list").innerHTML = dates.map(ds => {
+    const list = days[ds] || [];
+    return `<div class="day-title" style="margin-top:12px"><span>${fmtDate(ds)}</span><span class="sum">${list.length} 項</span></div>` +
+      (list.length ? list.map(t =>
+        `<div class="lib-item"><span class="t-icon">${t.icon}</span><span class="nm">${t.name}</span>
+          <span class="pill ${t.type === "advanced" ? "pill-adv" : "pill-basic"}">${t.pts} 點</span>
+          ${t.status === "todo" ? `<button class="del" data-unassign="${t.id}" data-uds="${ds}">移除</button>` : `<span class="pill pill-mint">已${t.status === "done" ? "完成" : "送審"}</span>`}
+        </div>`).join("") : `<div class="empty" style="padding:10px">尚未指派任務</div>`);
+  }).join("");
+}
+function renderApprove() {
+  const multi = S.children.length > 1;
+  const items = [];
+  S.children.forEach(c => {
+    const days = D(c.id);
+    Object.keys(days).forEach(ds => days[ds].forEach(t => { if (t.status === "pending") items.push({ c, ds, t }); }));
+  });
+  items.sort((a, b) => a.ds.localeCompare(b.ds) || a.c.name.localeCompare(b.c.name));
+  $("#approve-list").innerHTML = items.length ? items.map(({ c, ds, t }) =>
+    `<div class="approve-card">
+      ${multi ? `<div style="margin-bottom:8px">${whoTag(c)}</div>` : ""}
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:28px">${t.icon}</span>
+        <div style="flex:1"><b>${t.name}</b><div style="font-size:12.5px;color:var(--ink2)">${fmtDate(ds)} · ${t.type === "advanced" ? "💎 進階" : "⭐ 基本"} · ${t.pts} 點</div></div>
+      </div>
+      <div class="approve-actions">
+        <button class="btn btn-ghost btn-sm" style="flex:1" data-reject="${t.id}">退回</button>
+        <button class="btn btn-mint btn-sm" style="flex:1" data-approve="${t.id}">✔ 核准 +${t.pts} 點</button>
+      </div>
+    </div>`).join("") : `<div class="empty"><span class="big">☕</span>目前沒有待審核的任務</div>`;
+}
+/* 跨所有小孩尋找任務 / 兌換紀錄 */
+function findTask(id) {
+  for (const c of S.children) {
+    const days = D(c.id);
+    for (const ds in days) { const t = days[ds].find(x => x.id === id); if (t) return { t, c, ds }; }
+  }
+  return null;
+}
+function findRedemption(id) {
+  for (const c of S.children) { const r = R(c.id).find(x => x.id === id); if (r) return { r, c }; }
+  return null;
+}
+function renderRewards() {
+  const multi = S.children.length > 1;
+  $("#pr-reward-list").innerHTML = S.rewards.map(r =>
+    `<div class="lib-item"><span class="t-icon">${r.icon}</span><span class="nm">${r.name}</span>
+      <span class="pill pill-coin">${r.pts} 點</span><button class="edt" data-editreward="${r.id}">編輯</button><button class="del" data-delreward="${r.id}">刪除</button></div>`).join("") || `<div class="empty">還沒有獎品</div>`;
+  const all = [];
+  S.children.forEach(c => R(c.id).forEach(r => all.push({ c, r })));
+  const pend = all.filter(x => x.r.status === "pending").sort((a, b) => a.r.date.localeCompare(b.r.date));
+  $("#pr-claim-list").innerHTML = pend.length ? pend.map(({ c, r }) =>
+    `<div class="lib-item"><span class="t-icon">${r.icon}</span>
+      <span class="nm">${r.name}<div style="font-size:12px;color:var(--ink2);font-weight:400;margin-top:2px">${multi ? whoTag(c) + " " : ""}${fmtDate(r.date)} 兌換 · ${r.pts} 點</div></span>
+      <button class="btn btn-mint btn-sm" data-claim="${r.id}">🎁 發獎核銷</button></div>`).join("") : `<div class="empty">沒有待核銷的獎品</div>`;
+  const done = all.filter(x => x.r.status === "claimed").sort((a, b) => (b.r.claimedDate || "").localeCompare(a.r.claimedDate || ""));
+  $("#pr-claimed-list").innerHTML = done.length ? done.map(({ c, r }) =>
+    `<div class="lib-item" style="opacity:.7"><span class="t-icon">${r.icon}</span>
+      <span class="nm">${r.name}${multi ? `<div style="font-weight:400;margin-top:2px">${whoTag(c)}</div>` : ""}</span>
+      <span class="pill pill-mint">✔ ${fmtDate(r.claimedDate)}</span></div>`).join("") : `<div class="empty">尚無核銷紀錄</div>`;
+}
+function renderSettings() {
+  $("#sw-auto").classList.toggle("on", S.autoApprove);
+  $("#sw-zy").classList.toggle("on", S.zhuyin);
+  $("#row-lock").classList.toggle("hidden", S.children.length < 2);
+  $("#sw-lock").classList.toggle("on", S.switchLock);
+  $("#child-manage").innerHTML = S.children.map(c =>
+    `<div class="lib-item ${c.id === S.activeId ? "sel" : ""}">
+      <span class="t-icon">${avatarHTML(c.avatar)}</span>
+      <span class="nm">${c.name}<div style="font-size:12px;color:var(--ink2);font-weight:400;margin-top:2px">${c.age} 歲 · 🪙 ${balance(c.id)} 點${c.id === S.activeId ? " · 目前顯示中" : ""}</div></span>
+      <button class="edt" data-editchild="${c.id}">編輯</button>
+      ${S.children.length > 1 ? `<button class="del" data-delchild="${c.id}">刪除</button>` : ""}
+    </div>`).join("") || `<div class="empty" style="padding:12px">還沒有小孩資料</div>`;
+  // 安裝到主畫面
+  const card = $("#install-card");
+  card.classList.toggle("hidden", isStandalone());
+  if (!isStandalone()) {
+    $("#btn-install").classList.toggle("hidden", !deferredPrompt);
+    $("#install-tip").textContent = deferredPrompt
+      ? "按下面的按鈕，就能像 App 一樣放在主畫面，離線也打得開。"
+      : isIOS()
+        ? "用 Safari 開啟後，按下方「分享」→「加入主畫面」，就能像 App 一樣使用。"
+        : "在瀏覽器選單找「安裝應用程式 / 加到主畫面」，就能像 App 一樣使用。";
+  }
+  refreshStorageNote();
+  $("#ver-note").textContent = `小小任務家 v${APP_VER}`;
+}
+
+/* ---------- Modal：小孩 / 任務 / 獎品 / 確認 ---------- */
+let mtIcon = ICON_SET[0], mrIcon = RICON_SET[0], mcCb = null, editTaskId = null, editRewardId = null;
+let mkAvatar = AVATARS[0], editChildId = null;
+function iconGrid(el, set, cur, on) {
+  el.innerHTML = set.map(i => `<button class="${i === cur ? "sel" : ""}" data-i="${i}">${i}</button>`).join("");
+  el.onclick = e => { const b = e.target.closest("button"); if (!b) return; on(b.dataset.i); iconGrid(el, set, b.dataset.i, on); };
+}
+function openChildModal(id) {
+  const c = id ? kidOf(id) : null; editChildId = c ? id : null;
+  $("#mk-title").textContent = c ? "✏️ 編輯小孩資料" : "＋ 新增小孩";
+  $("#mk-save").textContent = c ? "儲存修改" : "新增";
+  $("#mk-name").value = c ? c.name : "";
+  const sel = $("#mk-age");
+  sel.innerHTML = Array.from({ length: 8 }, (_, i) => `<option value="${i + 5}">${i + 5} 歲</option>`).join("");
+  sel.value = c ? c.age : 8;
+  mkAvatar = c ? c.avatar : AVATARS[S.children.length % AVATARS.length];
+  avatarGrid($("#mk-avatars"), mkAvatar, a => mkAvatar = a);
+  $("#modal-child").classList.remove("hidden");
+}
+function openTaskModal(id) {
+  const t = id ? S.tasks.find(x => x.id === id) : null; editTaskId = t ? id : null;
+  $("#mt-title").textContent = t ? "✏️ 編輯任務" : "＋ 自訂新任務";
+  $("#mt-save").textContent = t ? "儲存修改" : "加入任務庫";
+  $("#mt-name").value = t ? t.name : ""; $("#mt-pts").value = t ? t.pts : 5; $("#mt-type").value = t ? t.type : libType;
+  mtIcon = t ? t.icon : ICON_SET[0];
+  const set = mtIcon && !ICON_SET.includes(mtIcon) ? [mtIcon, ...ICON_SET] : ICON_SET;
+  iconGrid($("#mt-icons"), set, mtIcon, i => mtIcon = i);
+  $("#modal-task").classList.remove("hidden");
+}
+function openRewardModal(id) {
+  const r = id ? S.rewards.find(x => x.id === id) : null; editRewardId = r ? id : null;
+  $("#mr-title").textContent = r ? "✏️ 編輯獎品" : "＋ 新增獎品";
+  $("#mr-save").textContent = r ? "儲存修改" : "新增";
+  $("#mr-name").value = r ? r.name : ""; $("#mr-pts").value = r ? r.pts : 30; mrIcon = r ? r.icon : RICON_SET[0];
+  const set = mrIcon && !RICON_SET.includes(mrIcon) ? [mrIcon, ...RICON_SET] : RICON_SET;
+  iconGrid($("#mr-icons"), set, mrIcon, i => mrIcon = i);
+  $("#modal-reward").classList.remove("hidden");
+}
+/* 任務庫修改後，同步到「今天以後、尚未完成」的已指派任務（所有小孩）；已完成/送審的點數凍結不動 */
+function syncAssigned(tid, patch) {
+  const today = todayStr();
+  S.children.forEach(c => {
+    const days = D(c.id);
+    Object.keys(days).forEach(ds => { if (ds < today) return; days[ds].forEach(t => { if (t.tid === tid && t.status === "todo") Object.assign(t, patch); }); });
+  });
+}
+function openConfirm(icon, title, text, cb) {
+  $("#mc-icon").textContent = icon; $("#mc-title").textContent = title; $("#mc-text").textContent = text;
+  mcCb = cb; $("#modal-confirm").classList.remove("hidden");
+}
+
+/* ---------- 備份匯出 / 匯入（localStorage 方案下唯一的防資料遺失手段） ---------- */
+function exportBackup() {
+  try {
+    const blob = new Blob([JSON.stringify(S, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = `小小任務家-備份-${todayStr()}.json`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    toast("備份已下載 💾");
+  } catch (e) { toast("下載失敗，請改用其他瀏覽器"); }
+}
+function importBackup(file) {
+  const r = new FileReader();
+  r.onload = () => {
+    let obj = null;
+    try { obj = JSON.parse(r.result); } catch (e) { return toast("這不是有效的備份檔"); }
+    if (!obj || typeof obj !== "object" || (!Array.isArray(obj.children) && !obj.child)) return toast("備份檔格式不符");
+    const list = Array.isArray(obj.children) ? obj.children : (obj.child ? [obj.child] : []);
+    const names = list.map(c => c && c.name).filter(Boolean).join("、") || "（沒有小孩資料）";
+    openConfirm("⬆️", "還原這份備份？", `會覆蓋這台裝置目前的所有資料，改成：${names}。建議先下載一份現在的備份再還原。`, () => {
+      S = obj; migrate(); save(); location.reload();
+    });
+  };
+  r.onerror = () => toast("檔案讀取失敗");
+  r.readAsText(file);
+}
+function refreshStorageNote() {
+  const el = $("#storage-note"); if (!el) return;
+  const kb = (new Blob([JSON.stringify(S)]).size / 1024).toFixed(0);
+  el.textContent = `目前資料量約 ${kb} KB`;
+  if (navigator.storage && navigator.storage.persisted) {
+    navigator.storage.persisted().then(p => {
+      el.textContent = `目前資料量約 ${kb} KB・${p ? "已取得持久儲存，瀏覽器不會自動清除" : "未取得持久儲存，請定期下載備份"}`;
+    }).catch(() => {});
+  }
+}
+
+/* ---------- PWA：Service Worker / 持久儲存 / 安裝 ---------- */
+let deferredPrompt = null;
+const isStandalone = () => window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+const isIOS = () => /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+function initPWA() {
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => { navigator.serviceWorker.register("sw.js").catch(() => {}); });
+  }
+  // 請求持久儲存，降低瀏覽器自動清除機率（Chrome/Android 有效，iOS 會忽略）
+  if (navigator.storage && navigator.storage.persist) {
+    navigator.storage.persisted().then(p => p || navigator.storage.persist()).catch(() => {});
+  }
+  window.addEventListener("beforeinstallprompt", e => {
+    e.preventDefault(); deferredPrompt = e;
+    if (pView === "settings" && !$("#pv-settings").classList.contains("hidden")) renderSettings();
+  });
+  window.addEventListener("appinstalled", () => { deferredPrompt = null; toast("已加到主畫面 🎉"); });
+}
+
+/* ---------- 事件綁定 ---------- */
+function bind() {
+  // 小孩端
+  $(".tabbar").onclick = e => { const b = e.target.closest("[data-kv]"); if (!b) return; kidView = b.dataset.kv; renderKid(); };
+  $("#kid-scroll").onclick = e => {
+    const o = e.target.closest("[data-off]"); if (o) { kidDayOff = +o.dataset.off; return renderKid(); }
+    const d = e.target.closest("[data-done]"); if (d) return kidComplete(d.dataset.done);
+    const r = e.target.closest("[data-redeem]"); if (r) return askRedeem(r.dataset.redeem);
+  };
+  $("#cal-prev").onclick = () => shiftMonth(-1);
+  $("#cal-next").onclick = () => shiftMonth(1);
+  $("#cal-grid").onclick = e => { const c = e.target.closest("[data-day]"); if (c) openDayModal(c.dataset.day); };
+  $("#btn-lock").onclick = () => openPin(() => { pView = "assign"; show("parent"); renderParent(); });
+  $("#btn-exit-parent").onclick = () => { if (!S.children.length) { show("setup"); return initSetup(); } show("kid"); renderKid(); };
+
+  // 切換小孩
+  $("#k-switch").onclick = openSwitch;
+  $("#switch-list").onclick = e => { const b = e.target.closest("[data-pick]"); if (b) switchTo(b.dataset.pick); };
+
+  // 家長端
+  $(".parent-tabs").onclick = e => { const b = e.target.closest("[data-pv]"); if (!b) return; pView = b.dataset.pv; renderParent(); };
+  $("#parent .scroll").onclick = e => {
+    const cc = e.target.closest("[data-cchip]");
+    if (cc) { S.activeId = cc.dataset.cchip; save(); return renderAssign(); }
+    const dc = e.target.closest("[data-dchip]");
+    if (dc) { const ds = dc.dataset.dchip; assignSel.has(ds) ? assignSel.delete(ds) : assignSel.add(ds); return renderAssign(); }
+    const q = e.target.closest("[data-quick]");
+    if (q) {
+      assignSel.clear();
+      const m = q.dataset.quick;
+      for (let o = 0; o < 14; o++) {
+        const ds = todayStr(o), w = new Date(ds + "T00:00").getDay();
+        if (m === "7" && o < 7) assignSel.add(ds);
+        if (m === "wd" && w >= 1 && w <= 5) assignSel.add(ds);
+        if (m === "we" && (w === 0 || w === 6)) assignSel.add(ds);
+      }
+      return renderAssign();
+    }
+    const sel = e.target.closest("[data-sel]");
+    if (sel && !e.target.closest("[data-deltask],[data-edittask]")) { const id = sel.dataset.sel; libSel.has(id) ? libSel.delete(id) : libSel.add(id); return renderAssign(); }
+    const et = e.target.closest("[data-edittask]");
+    if (et) return openTaskModal(et.dataset.edittask);
+    const dt = e.target.closest("[data-deltask]");
+    if (dt) {
+      const id = dt.dataset.deltask, t = S.tasks.find(x => x.id === id);
+      const doDel = () => { S.tasks = S.tasks.filter(x => x.id !== id); libSel.delete(id); save(); renderAssign(); toast("已從任務庫移除"); };
+      return t && !t.custom ? openConfirm("🗑️", `刪除「${t.name}」？`, "這是預設任務，刪除後可在設定頁「還原預設」找回。", doDel) : doDel();
+    }
+    const er = e.target.closest("[data-editreward]");
+    if (er) return openRewardModal(er.dataset.editreward);
+    const un = e.target.closest("[data-unassign]");
+    if (un) { const days = D(), ds = un.dataset.uds; days[ds] = (days[ds] || []).filter(t => t.id !== un.dataset.unassign); if (!days[ds].length) delete days[ds]; save(); return renderAssign(); }
+    const ap = e.target.closest("[data-approve]");
+    if (ap) { const f = findTask(ap.dataset.approve); if (f) { f.t.status = "done"; save(); toast(`已核准，${f.c.name} 獲得 ${f.t.pts} 點`); } return renderParent(); }
+    const rj = e.target.closest("[data-reject]");
+    if (rj) { const f = findTask(rj.dataset.reject); if (f) { f.t.status = "todo"; save(); toast("已退回，請孩子再接再厲"); } return renderParent(); }
+    const dr = e.target.closest("[data-delreward]");
+    if (dr) { S.rewards = S.rewards.filter(r => r.id !== dr.dataset.delreward); save(); return renderRewards(); }
+    const cl = e.target.closest("[data-claim]");
+    if (cl) { const f = findRedemption(cl.dataset.claim); if (f) { f.r.status = "claimed"; f.r.claimedDate = todayStr(); save(); toast(`已核銷發獎給 ${f.c.name} 🎁`); } return renderRewards(); }
+    const ec = e.target.closest("[data-editchild]");
+    if (ec) return openChildModal(ec.dataset.editchild);
+    const dch = e.target.closest("[data-delchild]");
+    if (dch) {
+      const id = dch.dataset.delchild, c = kidOf(id); if (!c) return;
+      return openConfirm("🗑️", `刪除「${c.name}」？`, `${c.name} 的點數、任務紀錄與兌換紀錄都會一起刪除，無法復原。任務庫與獎品不受影響。`, () => {
+        removeChild(id); renderParent(); toast(`已刪除 ${c.name}`);
+      });
+    }
+  };
+  $$(".seg-toggle [data-lib]").forEach(b => b.onclick = () => { libType = b.dataset.lib; renderAssign(); });
+  $("#assign-all-chk").onclick = () => { assignAll = !assignAll; renderAssign(); };
+  $("#btn-assign").onclick = () => {
+    if (!S.children.length) return toast("請先到「設定」新增小孩");
+    if (!libSel.size) return toast("先勾選要指派的任務");
+    if (!assignSel.size) return toast("先選擇日期");
+    const targets = (assignAll && S.children.length > 1) ? S.children.map(c => c.id) : [S.activeId];
+    let n = 0;
+    targets.forEach(cid => {
+      const days = D(cid);
+      assignSel.forEach(ds => {
+        days[ds] = days[ds] || [];
+        libSel.forEach(id => {
+          const t = S.tasks.find(x => x.id === id); if (!t) return;
+          if (days[ds].some(x => x.tid === id)) return; // 同一位小孩同日不重複
+          days[ds].push({ ...t, tid: t.id, id: uid(), status: "todo" }); n++;
+        });
+      });
+    });
+    libSel.clear(); save();
+    toast(targets.length > 1 ? `已指派 ${n} 項任務給 ${targets.length} 位小孩 ✔` : `已指派 ${n} 項任務到 ${assignSel.size} 天 ✔`);
+    renderAssign();
+  };
+  $("#btn-new-task").onclick = () => openTaskModal();
+  $("#mt-save").onclick = () => {
+    const name = $("#mt-name").value.trim(); if (!name) return toast("請填任務名稱");
+    const pts = Math.max(1, +$("#mt-pts").value || 1), type = $("#mt-type").value;
+    if (editTaskId) {
+      const t = S.tasks.find(x => x.id === editTaskId);
+      if (t) { Object.assign(t, { name, icon: mtIcon, pts, type }); syncAssigned(t.id, { name, icon: mtIcon, pts, type }); }
+      toast("任務已更新");
+    } else { S.tasks.push({ id: uid(), name, icon: mtIcon, pts, type, custom: true }); toast("已加入任務庫"); }
+    editTaskId = null; save(); $("#modal-task").classList.add("hidden"); libType = type; renderAssign();
+  };
+  $("#btn-new-reward").onclick = () => openRewardModal();
+  $("#mr-save").onclick = () => {
+    const name = $("#mr-name").value.trim(); if (!name) return toast("請填獎品名稱");
+    const pts = Math.max(1, +$("#mr-pts").value || 1);
+    if (editRewardId) {
+      const r = S.rewards.find(x => x.id === editRewardId);
+      if (r) Object.assign(r, { name, icon: mrIcon, pts });
+      toast("獎品已更新");
+    } else { S.rewards.push({ id: uid(), name, icon: mrIcon, pts }); toast("已新增獎品"); }
+    editRewardId = null; save(); $("#modal-reward").classList.add("hidden"); renderRewards();
+  };
+  $("#mc-ok").onclick = () => { $("#modal-confirm").classList.add("hidden"); mcCb && mcCb(); };
+  $$("[data-close]").forEach(b => b.onclick = () => b.closest(".modal-mask").classList.add("hidden"));
+
+  // 小孩管理
+  $("#btn-add-child").onclick = () => openChildModal();
+  $("#mk-upload-btn").onclick = () => $("#mk-upload").click();
+  $("#mk-upload").onchange = e => readAvatar(e.target, url => { mkAvatar = url; avatarGrid($("#mk-avatars"), mkAvatar, a => mkAvatar = a); });
+  $("#mk-save").onclick = () => {
+    const name = $("#mk-name").value.trim(); if (!name) return toast("名字不能空白");
+    const age = +$("#mk-age").value;
+    if (editChildId) {
+      const c = kidOf(editChildId); if (c) Object.assign(c, { name, age, avatar: mkAvatar });
+      toast("已更新資料");
+    } else {
+      const id = addChild({ name, age, avatar: mkAvatar });
+      S.activeId = id; confetti(); toast(`已新增 ${name} 🎉`);
+    }
+    editChildId = null; save(); $("#modal-child").classList.add("hidden"); renderParent();
+  };
+
+  // 範例資料 / 備份 / 安裝
+  $("#su-demo").onclick = () => { seedDemo(); show("kid"); renderKid(); confetti(); toast("已載入範例資料，隨時可在設定清除"); };
+  $("#btn-export").onclick = exportBackup;
+  $("#btn-import").onclick = () => $("#import-file").click();
+  $("#import-file").onchange = e => { const f = e.target.files[0]; e.target.value = ""; if (f) importBackup(f); };
+  $("#btn-install").onclick = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    try { await deferredPrompt.userChoice; } catch (e) {}
+    deferredPrompt = null; renderSettings();
+  };
+
+  // 設定
+  $("#sw-auto").onclick = () => { S.autoApprove = !S.autoApprove; save(); renderSettings(); };
+  $("#sw-zy").onclick = () => { S.zhuyin = !S.zhuyin; save(); renderSettings(); toast(S.zhuyin ? "已開啟注音" : "已關閉注音"); };
+  $("#sw-lock").onclick = () => { S.switchLock = !S.switchLock; save(); renderSettings(); toast(S.switchLock ? "切換小孩時會要求密碼" : "已開放自由切換"); };
+  $("#btn-save-pin").onclick = () => {
+    const p = $("#set-pin").value;
+    if (!/^\d{4}$/.test(p)) return toast("密碼需為 4 位數字");
+    S.pin = p; save(); $("#set-pin").value = ""; toast("密碼已更新");
+  };
+  $("#btn-restore-presets").onclick = () => openConfirm("↺", "還原預設任務與獎品？", "預設項目會回到出廠名稱與點數；你自訂的任務、獎品與已指派/已完成紀錄都會保留。", () => {
+    const custom = S.tasks.filter(t => t.custom);
+    S.tasks = [...deep(PRESET_TASKS), ...custom];
+    const presetIds = new Set(PRESET_REWARDS.map(r => r.id));
+    S.rewards = [...deep(PRESET_REWARDS), ...S.rewards.filter(r => !presetIds.has(r.id))];
+    save(); renderParent(); toast("已還原預設項目");
+  });
+  $("#btn-reset").onclick = () => openConfirm("⚠️", "清除所有資料？", "所有小孩、任務、點數、兌換紀錄都會消失，回到初始設定畫面。", () => {
+    S = defaultState(); save(); location.reload();
+  });
+}
+
+/* ---------- 啟動 ---------- */
+load();
+if (!S) S = defaultState();  // 第一次開啟：乾淨初始設定（範例資料改由設定頁按鈕載入）
+migrate(); save();           // 舊版單一小孩資料自動升級為多小孩結構
+initPin(); bind(); initPWA();
+if (!S.children.length) { show("setup"); initSetup(); }
+else { show("kid"); renderKid(); }
+</script>
+</body>
+</html>
