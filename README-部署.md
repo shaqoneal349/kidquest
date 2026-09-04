@@ -1,5 +1,9 @@
 # 小小任務家 v3.3.1 — 階段一發布包
 
+> 🟢 **已上線**：https://shaqoneal349.github.io/kidquest/
+> 📦 **原始碼**：https://github.com/shaqoneal349/kidquest（public，GitHub Pages 由 `main` / root 自動發布）
+> 傳這個網址給家長，手機開啟後即可「加到主畫面」，離線也能用。
+
 這個資料夾就是**完整可上線的網站**。整包丟到任何 HTTPS 靜態空間即可，不需要後端、不需要建置步驟。
 
 ```
@@ -13,7 +17,21 @@ kidquest-pwa/
 
 ---
 
-## 一、上線（三選一，都免費）
+## 一、上線 ✅ 已完成（GitHub Pages）
+
+已經用 GitHub CLI 建好 public repo 並開啟 Pages，站台在 https://shaqoneal349.github.io/kidquest/。
+**之後改版只要 `git push`，GitHub 會自動重新發布**（約 1 分鐘）：
+
+```bash
+git add -A
+git commit -m "說明改了什麼"
+git push
+```
+
+<details>
+<summary>備援：想換去 Cloudflare Pages / Netlify 的話</summary>
+
+### 備援選項（三選一，都免費）
 
 > ⚠️ **一定要 HTTPS**。Service Worker 在 `http://`（localhost 除外）與 `file://` 下不會啟用，也就沒有離線與「加到主畫面」。
 
@@ -37,6 +55,9 @@ git push -u origin main
 ```
 接著到 repo → **Settings → Pages** → Source 選 `main` / `/ (root)` → 存檔，
 約一分鐘後得到 `https://<你的帳號>.github.io/kidquest/`。
+
+
+</details>
 
 ---
 
@@ -66,7 +87,7 @@ git push -u origin main
 
 1. 改 `index.html`（或 `zhuyin-data.js`）
 2. **把 `sw.js` 裡的 `CACHE = "kidquest-v3.3.1"` 版本號往上加**（例如 `v3.3.2`）
-3. 重新上傳整包
+3. `git add -A && git commit -m "..." && git push`（GitHub Pages 約 1 分鐘後自動更新）
 
 沒有改版本號的話，因為是 cache-first，使用者會一直看到舊版。
 改了之後，使用者**開兩次**才會完全切到新版（第一次背景更新、第二次生效）。
@@ -79,7 +100,7 @@ git push -u origin main
 |---|---|
 | manifest.json | ✅ `manifest.webmanifest`，含 192/512 的 any + maskable |
 | Service Worker（cache-first、離線） | ✅ `sw.js`，含導覽離線 fallback |
-| HTTPS 靜態託管 | ⬜ 需你選一家（上方三選一） |
+| HTTPS 靜態託管 | ✅ GitHub Pages：https://shaqoneal349.github.io/kidquest/ |
 | iOS 專用 meta | ✅ `apple-mobile-web-app-capable` / `apple-touch-icon` / `viewport-fit=cover` + 安全區 padding |
 | 移除自動 seedDemo | ✅ 第一次開啟是乾淨初始設定；範例資料改成設定頁的「先載入範例資料試玩」按鈕 |
 | 匯出 / 匯入備份 | ✅ 設定頁「資料備份」，下載 `小小任務家-備份-YYYY-MM-DD.json` |
