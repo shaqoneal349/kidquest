@@ -8,12 +8,19 @@
 
 ```
 kidquest-pwa/
-├─ index.html            ← 主程式（HTML + CSS + App 邏輯）
+├─ index.html            ← 主程式（HTML + CSS + App 邏輯）＝唯一的程式碼來源
 ├─ zhuyin-data.js        ← 注音字典（約 92KB，獨立檔以利快取）
 ├─ manifest.webmanifest  ← App 名稱、圖示、啟動方式
 ├─ sw.js                 ← Service Worker（離線快取）
 └─ icons/                ← 192 / 512 / apple-touch / favicon
+
+build-zhuyin.py         ← 由教育部辭典重建注音字典
+build-standalone.py     ← 由 index.html 生成「單檔版」，輸出到上層 小小任務家-集點AppDemo-v3.4.html
 ```
+
+> **單檔版**：雙擊即可用、不需伺服器與網路，適合傳給不想裝東西的人。
+> 它由 `index.html` 自動生成（內嵌注音字典、移除 manifest/icon 連結、關閉安裝卡片），
+> **不要直接編輯單檔版**——改功能請改 `index.html` 後執行 `python build-standalone.py`。
 
 ---
 
