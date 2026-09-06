@@ -1,4 +1,4 @@
-# 小小任務家 v3.5.0 — 階段一發布包
+# 小小任務家 v3.5.1 — 階段一發布包
 
 > 🟢 **已上線**：https://shaqoneal349.github.io/kidquest/
 > 📦 **原始碼**：https://github.com/shaqoneal349/kidquest（public，GitHub Pages 由 `main` / root 自動發布）
@@ -96,7 +96,7 @@ git push -u origin main
 ## 四、之後要改版怎麼發布
 
 1. 改 `index.html`（或 `zhuyin-data.js`）
-2. **把 `sw.js` 裡的 `CACHE = "kidquest-v3.5.0"` 版本號往上加**（例如 `v3.3.2`）
+2. **把 `sw.js` 裡的 `CACHE = "kidquest-v3.5.1"` 版本號往上加**（例如 `v3.3.2`）
 3. `git add -A && git commit -m "..." && git push`（GitHub Pages 約 1 分鐘後自動更新）
 
 沒有改版本號的話，因為是 cache-first，使用者會一直看到舊版。
@@ -142,8 +142,8 @@ git push -u origin main
 
 ## 七、意見回饋要怎麼串（重要）
 
-App 裡已經做好回饋表單（**家長模式 → 設定 → 我有話想說**），但**還沒接上收集端點**。
-目前送出的內容會存在使用者裝置的佇列裡，接上之後會自動補送，不會遺失。
+✅ **已接上**（v3.5.1）。回饋會寫進 Google 試算表「小小任務家問題回饋」。
+入口：**家長模式 → 設定 → 我有話想說**，以及使用手冊最下方。
 
 ### 為什麼選 Google Apps Script
 

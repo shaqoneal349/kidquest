@@ -709,11 +709,11 @@ input,select,textarea{font-family:inherit;font-size:16px;color:var(--ink)}
 /* 小小任務家 KidQuest v3.3.1 — 多小孩切換 + PWA（可安裝／離線）+ 備份匯出匯入
    注音字典 ZY_CHAR / ZY_PHRASE 由 zhuyin-data.js 提供（需先於本檔載入） */
 "use strict";
-const APP_VER = "3.5.0";
+const APP_VER = "3.5.1";
 /* 意見回饋收集端點（Google Apps Script 網頁應用程式 /exec 網址）。
    留空時：回饋不會遺失，會存在本機佇列，設定好網址後下次開啟自動補送。
    設定方式見 feedback-apps-script.gs 檔頭與 README-部署.md 第七節。 */
-const FEEDBACK_URL = "";
+const FEEDBACK_URL = "https://script.google.com/macros/s/AKfycby3BK_6DX6ViNXeC-ArWvzBeN0pqLmpesIrf-upKT5ewcIHEND9OFt6w37uEjIHKEQWbw/exec";
 /* 與 Apps Script 端的 TOKEN 必須一致。這不是密碼——它在公開原始碼裡看得到，
    作用只是擋掉隨機掃描的機器人。 */
 const FEEDBACK_TOKEN = "kq-2026-fb";
@@ -1580,9 +1580,15 @@ async function postFeedback(item) {
   if (!FEEDBACK_URL) return false;
   const body = new URLSearchParams(item);
   try {
-    await fetch(FEEDBACK_URL, { method: "POST", body });
-    return true;
+    const res = await fetch(FEEDBACK_URL, { method: "POST", body });
+    if (!res.ok) return false;
+    // 端點正常時會回 {"ok":true}。若回的是別的東西（例如 Apps Script 的錯誤頁），
+    // 代表沒真的寫進去 —— 這時要當成失敗留在佇列，不能報喜。
+    const txt = (await res.text()).trim();
+    try { return JSON.parse(txt).ok === true; } catch (e) { return false; }
   } catch (e) {
+    // 讀不到回應（多半是 CORS）→ 用 no-cors 再送一次；成功與否無從得知，
+    // 只能樂觀視為已送出，避免使用者重複填寫。
     try { await fetch(FEEDBACK_URL, { method: "POST", body, mode: "no-cors" }); return true; }
     catch (e2) { return false; }
   }

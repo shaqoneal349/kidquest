@@ -1,7 +1,7 @@
 /* 小小任務家 — Service Worker（cache-first，離線可開）
    ⚠️ 每次改 index.html / zhuyin-data.js 後，請把 CACHE 版本號 +1 再上傳，
       使用者下次開啟才會拿到新版。 */
-const CACHE = "kidquest-v3.5.0";
+const CACHE = "kidquest-v3.5.1";
 const ASSETS = [
   "./",
   "./index.html",
