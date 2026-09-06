@@ -163,15 +163,22 @@ App 裡已經做好回饋表單（**家長模式 → 設定 → 我有話想說*
 
 完整說明寫在 `feedback-apps-script.gs` 的檔頭。摘要：
 
-1. 開一份 Google 試算表 → 複製網址裡的 ID
-2. 擴充功能 → Apps Script → 貼上 `feedback-apps-script.gs` 全部內容
-3. 填 `SHEET_ID`（想收通知信就再填 `NOTIFY_EMAIL`）
-4. 部署 → 網頁應用程式 → 執行身分「我」、存取權限 **「所有人」** → 複製 `/exec` 網址
-5. 把網址填進 `index.html` 的 `FEEDBACK_URL`，`sw.js` 的 `CACHE` 版本號 +1，`git push`
+1. 網址列輸入 `sheets.new` 開一份新試算表
+2. 擴充功能 → Apps Script → 貼上 `feedback-apps-script.gs` 全部內容（**不用填任何 ID**）
+3. 部署 → 網頁應用程式 → 執行身分「我」、存取權限 **「所有人」** → 授權
+4. 複製 `/exec` 網址，填進 `index.html` 的 `FEEDBACK_URL`，`sw.js` 的 `CACHE` 版本號 +1，`git push`
+
+授權時會看到「Google 尚未驗證這個應用程式」——那是你自己寫的腳本，點「進階 → 前往專案 → 允許」即可。
+授權範圍**只有試算表**，沒有信箱、沒有雲端硬碟其他檔案。
 
 ```js
 const FEEDBACK_URL = "https://script.google.com/macros/s/AKfy..../exec";
 ```
+
+### 防機器人
+
+端點是公開的，任何人都能 POST。腳本裡有一組 `TOKEN`（App 端 `FEEDBACK_TOKEN` 要相同）擋掉隨機掃描的爬蟲。
+**這不是密碼**——它在公開原始碼裡看得到，只是提高亂寫的門檻。真的被灌垃圾就換一組字串，兩邊同步改再重新部署。
 
 ### 會收到什麼
 

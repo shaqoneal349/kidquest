@@ -712,8 +712,11 @@ input,select,textarea{font-family:inherit;font-size:16px;color:var(--ink)}
 const APP_VER = "3.5.0";
 /* 意見回饋收集端點（Google Apps Script 網頁應用程式 /exec 網址）。
    留空時：回饋不會遺失，會存在本機佇列，設定好網址後下次開啟自動補送。
-   設定方式見 README-部署.md 第七節。 */
+   設定方式見 feedback-apps-script.gs 檔頭與 README-部署.md 第七節。 */
 const FEEDBACK_URL = "";
+/* 與 Apps Script 端的 TOKEN 必須一致。這不是密碼——它在公開原始碼裡看得到，
+   作用只是擋掉隨機掃描的機器人。 */
+const FEEDBACK_TOKEN = "kq-2026-fb";
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const KEY = "kidquest_v2";
@@ -1562,6 +1565,7 @@ function openFeedback() {
 }
 function fbPayload(text) {
   return {
+    k: FEEDBACK_TOKEN,
     ts: new Date().toISOString(),
     type: fbType,
     text,
