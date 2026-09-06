@@ -1,4 +1,4 @@
-# 小小任務家 v3.4.0 — 階段一發布包
+# 小小任務家 v3.5.0 — 階段一發布包
 
 > 🟢 **已上線**：https://shaqoneal349.github.io/kidquest/
 > 📦 **原始碼**：https://github.com/shaqoneal349/kidquest（public，GitHub Pages 由 `main` / root 自動發布）
@@ -12,10 +12,13 @@ kidquest-pwa/
 ├─ zhuyin-data.js        ← 注音字典（約 92KB，獨立檔以利快取）
 ├─ manifest.webmanifest  ← App 名稱、圖示、啟動方式
 ├─ sw.js                 ← Service Worker（離線快取）
-└─ icons/                ← 192 / 512 / apple-touch / favicon
+├─ icons/                ← 192 / 512 / apple-touch / favicon
+└─ images/               ← 使用手冊的 10 張畫面截圖（WebP，約 194KB）
 
 build-zhuyin.py         ← 由教育部辭典重建注音字典
-build-standalone.py     ← 由 index.html 生成「單檔版」，輸出到上層 小小任務家-集點AppDemo-v3.4.html
+build-standalone.py     ← 由 index.html 生成「單檔版」，輸出檔名依版本自動決定
+shoot.py（在 scratchpad）← 用無頭 Chrome 重拍手冊截圖
+feedback-apps-script.gs ← 意見回饋收集端點（貼到 Google Apps Script）
 ```
 
 > **單檔版**：雙擊即可用、不需伺服器與網路，適合傳給不想裝東西的人。
@@ -93,7 +96,7 @@ git push -u origin main
 ## 四、之後要改版怎麼發布
 
 1. 改 `index.html`（或 `zhuyin-data.js`）
-2. **把 `sw.js` 裡的 `CACHE = "kidquest-v3.4.0"` 版本號往上加**（例如 `v3.3.2`）
+2. **把 `sw.js` 裡的 `CACHE = "kidquest-v3.5.0"` 版本號往上加**（例如 `v3.3.2`）
 3. `git add -A && git commit -m "..." && git push`（GitHub Pages 約 1 分鐘後自動更新）
 
 沒有改版本號的話，因為是 cache-first，使用者會一直看到舊版。
@@ -134,3 +137,50 @@ git push -u origin main
 - **未實作「一／不」變調**：教育部辭典本身不在注音欄標變調，為與來源一致故未加。因此「一支」顯示 ㄧ ㄓ，課本寫法是 ㄧˋ ㄓ。要改成課本式變調可以做，但得處理「第一」「一月」「星期一」等不變調的例外。
 - 5,401 字中有 29 字教育部查無資料（多為罕用異體字），保留原值。
 - 逐字校對 5,401 字不可行；保證的是**91 條驗證電池**（全部預設任務／獎品 + 常見家事與獎品用語）逐條人工確認正確。若發現漏網之魚，在 `build_zy2.py` 的 `PHRASE_FIX` 加一行即可。
+
+---
+
+## 七、意見回饋要怎麼串（重要）
+
+App 裡已經做好回饋表單（**家長模式 → 設定 → 我有話想說**），但**還沒接上收集端點**。
+目前送出的內容會存在使用者裝置的佇列裡，接上之後會自動補送，不會遺失。
+
+### 為什麼選 Google Apps Script
+
+比較過幾種做法：
+
+| 做法 | 使用者體驗 | 你的成本 | 缺點 |
+|---|---|---|---|
+| **Apps Script → 試算表**（建議） | 在 App 內填完就送出，不用離開 | 免費、5 分鐘設定 | 要部署一次 |
+| Google 表單連結 | 跳出 App 到瀏覽器填 | 免費、3 分鐘 | 中斷體驗，填答率較低 |
+| mailto: 開信箱 | 手機上常常開不起來 | 0 | 體驗差，且要公開你的信箱 |
+| Formspree / Tally 等 | 好 | 免費額度有限 | 多依賴一個外部服務 |
+
+選 Apps Script 的關鍵理由：**資料留在你自己的 Google 帳號**、不用註冊第三方、
+而且回饋直接進試算表，可以自己排序分類，要做成看板也容易。
+
+### 設定步驟
+
+完整說明寫在 `feedback-apps-script.gs` 的檔頭。摘要：
+
+1. 開一份 Google 試算表 → 複製網址裡的 ID
+2. 擴充功能 → Apps Script → 貼上 `feedback-apps-script.gs` 全部內容
+3. 填 `SHEET_ID`（想收通知信就再填 `NOTIFY_EMAIL`）
+4. 部署 → 網頁應用程式 → 執行身分「我」、存取權限 **「所有人」** → 複製 `/exec` 網址
+5. 把網址填進 `index.html` 的 `FEEDBACK_URL`，`sw.js` 的 `CACHE` 版本號 +1，`git push`
+
+```js
+const FEEDBACK_URL = "https://script.google.com/macros/s/AKfy..../exec";
+```
+
+### 會收到什麼
+
+每筆回饋一列：時間、類型（建議／問題／其他）、內容、聯絡方式、App 版本、小孩數、是否已安裝、裝置字串。
+
+**不會收集**小孩姓名、頭像、任務內容或任何點數紀錄——這些從頭到尾只存在使用者自己的裝置。
+`小孩數` 只是個數字，用來判斷回報的人是不是多小孩使用者。
+
+### 端點還沒設定時會怎樣
+
+表單照常可用。按送出後內容會存進本機佇列並複製到剪貼簿，
+使用者可以自己貼給你；等你設定好 `FEEDBACK_URL` 並更新版本後，**下次開啟 App 會自動補送**。

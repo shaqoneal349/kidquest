@@ -1,7 +1,7 @@
 /* 小小任務家 — Service Worker（cache-first，離線可開）
    ⚠️ 每次改 index.html / zhuyin-data.js 後，請把 CACHE 版本號 +1 再上傳，
       使用者下次開啟才會拿到新版。 */
-const CACHE = "kidquest-v3.4.0";
+const CACHE = "kidquest-v3.5.0";
 const ASSETS = [
   "./",
   "./index.html",
@@ -11,6 +11,16 @@ const ASSETS = [
   "./icons/icon-512.png",
   "./icons/apple-touch-icon.png",
   "./icons/favicon-32.png",
+  "./images/manual-kid-history.webp",
+  "./images/manual-kid-pending.webp",
+  "./images/manual-kid-shop.webp",
+  "./images/manual-kid-switch.webp",
+  "./images/manual-kid-today.webp",
+  "./images/manual-parent-approve.webp",
+  "./images/manual-parent-assign.webp",
+  "./images/manual-parent-pin.webp",
+  "./images/manual-parent-rewards.webp",
+  "./images/manual-parent-settings.webp",
 ];
 
 self.addEventListener("install", e => {

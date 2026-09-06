@@ -258,12 +258,126 @@ input,select,textarea{font-family:inherit;font-size:16px;color:var(--ink)}
 .hint{font-size:12.5px;color:var(--ink2);line-height:1.75;margin-top:10px}
 .btn-row{display:flex;gap:10px}
 .btn-row>.btn{flex:1}
+
+/* ===== 功能介紹（首次開啟） ===== */
+#intro{background:linear-gradient(180deg,#DCEBFF 0%,var(--bg) 34%)}
+.intro-track{flex:1;min-height:0;display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.intro-track::-webkit-scrollbar{display:none}
+.slide{flex:0 0 100%;scroll-snap-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:24px 26px calc(12px + env(safe-area-inset-top)) ;text-align:center;gap:6px}
+.slide .art{font-size:74px;line-height:1.1;filter:drop-shadow(0 6px 10px rgba(38,52,82,.18))}
+.slide h2{font-size:23px;margin-top:12px}
+.slide p{font-size:15.5px;color:var(--ink2);line-height:1.85;max-width:19em}
+.slide .tag{display:inline-flex;gap:5px;align-items:center;background:#fff;border-radius:999px;padding:5px 13px;font-size:12.5px;font-weight:800;color:var(--primary-d);box-shadow:var(--shadow);margin-bottom:4px}
+.slide .bullets{margin-top:10px;display:flex;flex-direction:column;gap:8px;width:100%;max-width:300px}
+.slide .bullets div{display:flex;gap:9px;align-items:flex-start;background:#fff;border-radius:var(--r-md);padding:11px 13px;box-shadow:var(--shadow);font-size:14px;font-weight:700;text-align:left;line-height:1.6}
+.slide .bullets b{font-size:19px;line-height:1.35;flex-shrink:0}
+.intro-foot{padding:14px 22px calc(20px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:12px;align-items:center}
+.dots{display:flex;gap:7px}
+.dots i{width:7px;height:7px;border-radius:99px;background:var(--line);transition:.25s}
+.dots i.on{background:var(--primary);width:22px}
+.intro-skip{font-size:13.5px;color:var(--ink2);font-weight:700;padding:6px 10px}
+
+/* ===== 使用手冊 ===== */
+#manual{position:absolute;inset:0;z-index:60;background:var(--bg);display:flex;flex-direction:column}
+.man-head{background:var(--parent-accent);color:#fff;padding:calc(13px + env(safe-area-inset-top)) 14px 13px;display:flex;align-items:center;gap:10px}
+.man-head h1{font-size:17px;flex:1}
+.man-tabs{display:flex;background:var(--parent-accent);padding:0 10px 10px;gap:6px}
+.man-tabs button{flex:1;padding:9px 4px;border-radius:12px;font-size:13.5px;font-weight:800;color:rgba(255,255,255,.7)}
+.man-tabs button.on{background:#fff;color:var(--parent-accent)}
+.man-body{flex:1;min-height:0;overflow-y:auto;padding:16px 16px calc(28px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch}
+.man-sec{background:#fff;border-radius:var(--r-lg);padding:16px;box-shadow:var(--shadow);margin-bottom:14px}
+.man-sec>h3{font-size:16.5px;display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.man-sec>h3 .n{width:24px;height:24px;border-radius:50%;background:var(--primary);color:#fff;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.man-sec p{font-size:14.5px;color:var(--ink2);line-height:1.9;margin-top:6px}
+.man-sec ul{margin:8px 0 0 2px;padding:0;list-style:none;display:flex;flex-direction:column;gap:7px}
+.man-sec li{font-size:14.5px;line-height:1.8;padding-left:20px;position:relative;color:var(--ink)}
+.man-sec li::before{content:"›";position:absolute;left:6px;top:-1px;color:var(--primary);font-weight:900;font-size:16px}
+.man-sec li b{color:var(--primary-d)}
+.shot{margin:12px 0 2px;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:#F7FAFF}
+.shot img{display:block;width:100%;height:auto}
+.shot figcaption{font-size:12.5px;color:var(--ink2);padding:8px 10px;background:#fff;border-top:1px solid var(--line);line-height:1.65}
+.note{display:flex;gap:9px;background:#FFF6E0;border-radius:var(--r-sm);padding:11px 12px;font-size:13.5px;line-height:1.8;color:#7A5200;margin-top:11px}
+.note.warn{background:#FFE9E9;color:#9B3030}
+.note b{font-size:15px;flex-shrink:0;line-height:1.4}
+.faq{background:#fff;border-radius:var(--r-md);box-shadow:var(--shadow);margin-bottom:9px;overflow:hidden}
+.faq summary{padding:13px 14px;font-size:14.5px;font-weight:800;cursor:pointer;list-style:none;display:flex;gap:8px;align-items:flex-start;line-height:1.6}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::before{content:"Q";color:var(--primary);font-weight:900;flex-shrink:0}
+.faq[open] summary{border-bottom:1px solid var(--line)}
+.faq .ans{padding:12px 14px;font-size:14px;color:var(--ink2);line-height:1.9}
+.faq .ans b{color:var(--ink)}
+
+/* ===== 意見回饋 ===== */
+.fb-types{display:flex;gap:7px;margin-bottom:4px}
+.fb-types button{flex:1;padding:9px 4px;border-radius:var(--r-sm);border:2px solid var(--line);background:#fff;font-size:13.5px;font-weight:800;color:var(--ink2)}
+.fb-types button.on{border-color:var(--primary);background:#EAF0FF;color:var(--primary-d)}
+#fb-text{width:100%;min-height:110px;padding:12px 14px;border:2px solid var(--line);border-radius:var(--r-sm);resize:vertical;line-height:1.7;outline:none}
+#fb-text:focus{border-color:var(--primary)}
+.fb-count{text-align:right;font-size:12px;color:var(--ink2);margin-top:4px}
 </style>
 </head>
 <body>
 <div id="app">
   <div id="confetti"></div>
   <div id="toast"></div>
+
+  <!-- ========== 功能介紹（首次開啟） ========== -->
+  <div id="intro" class="screen hidden">
+    <div class="intro-track" id="intro-track">
+      <div class="slide">
+        <span class="art">🎪</span>
+        <h2>小小任務家</h2>
+        <p>把「快去寫功課」變成一場遊戲。<br>爸媽出任務，小孩完成後集金幣，<br>存夠了就能換到想要的獎品。</p>
+      </div>
+      <div class="slide">
+        <span class="tag">✅ 小朋友端</span>
+        <span class="art">📋</span>
+        <h2>今天要做什麼，<br>自己看得懂</h2>
+        <div class="bullets">
+          <div><b>🔤</b><span>任務名稱自動加注音，還不太認字也能自己讀</span></div>
+          <div><b>👆</b><span>做完自己打勾，金幣馬上跳出來</span></div>
+          <div><b>🔥</b><span>連續達成天數，養成每天想打開的習慣</span></div>
+        </div>
+      </div>
+      <div class="slide">
+        <span class="tag">🎁 看得到的目標</span>
+        <span class="art">🪙</span>
+        <h2>點數換獎品，<br>進度看得見</h2>
+        <div class="bullets">
+          <div><b>📊</b><span>還差幾點會顯示進度條，努力有方向</span></div>
+          <div><b>🎈</b><span>獎品由你設定：看卡通、去公園、買玩具都行</span></div>
+          <div><b>✔</b><span>兌換後由家長「發獎核銷」，說到做到</span></div>
+        </div>
+      </div>
+      <div class="slide">
+        <span class="tag">👨‍👩‍👧‍👦 一台裝置就夠</span>
+        <span class="art">🧒🧒</span>
+        <h2>好幾個小孩，<br>各算各的</h2>
+        <div class="bullets">
+          <div><b>🔄</b><span>點頭像就能換人，點數與紀錄完全獨立</span></div>
+          <div><b>📮</b><span>同一個任務可以一次指派給所有小孩</span></div>
+          <div><b>🔒</b><span>可設定切換時要密碼，避免互相亂按</span></div>
+        </div>
+      </div>
+      <div class="slide">
+        <span class="tag">🔒 家長模式</span>
+        <span class="art">👨‍👩‍👧</span>
+        <h2>出任務、審核、<br>發獎都在這裡</h2>
+        <div class="bullets">
+          <div><b>📅</b><span>一次勾好未來 14 天，常態任務鋪一次就好</span></div>
+          <div><b>🔍</b><span>小孩打勾要你核准才入點，也可以改成免審核</span></div>
+          <div><b>💾</b><span>資料存在這台裝置，記得定期下載備份</span></div>
+          <div><b>📖</b><span>完整教學在「設定 → 使用手冊」，含每個畫面的對照說明</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="intro-foot">
+      <div class="dots" id="intro-dots"></div>
+      <button class="btn btn-primary btn-block" id="intro-next">下一步</button>
+      <button class="intro-skip" id="intro-skip">略過介紹</button>
+    </div>
+  </div>
 
   <!-- ========== 初始設定 ========== -->
   <div id="setup" class="screen hidden">
@@ -404,6 +518,21 @@ input,select,textarea{font-family:inherit;font-size:16px;color:var(--ink)}
           <button class="btn btn-primary btn-sm btn-block hidden" id="btn-install">立即安裝</button>
         </div>
         <div class="card">
+          <div class="field" style="margin-bottom:10px"><label>📖 使用說明</label>
+            <div style="font-size:12.5px;color:var(--ink2)">家長端與小朋友端的完整操作教學，含畫面對照與常見問題</div>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-ghost btn-sm" id="btn-manual">📖 使用手冊</button>
+            <button class="btn btn-ghost btn-sm" id="btn-replay-intro">🎪 重看介紹</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="field" style="margin-bottom:10px"><label>💬 意見回饋</label>
+            <div style="font-size:12.5px;color:var(--ink2)">用起來哪裡卡卡的、想要什麼功能，都告訴我。你的建議會直接影響下一版怎麼做。</div>
+          </div>
+          <button class="btn btn-primary btn-sm btn-block" id="btn-feedback">我有話想說 💬</button>
+        </div>
+        <div class="card">
           <div class="field" style="margin-bottom:10px"><label>👨‍👩‍👧‍👦 小孩管理</label>
             <div style="font-size:12.5px;color:var(--ink2)">任務庫與獎品全家共用；點數、指派紀錄、兌換紀錄各自獨立</div>
           </div>
@@ -445,6 +574,47 @@ input,select,textarea{font-family:inherit;font-size:16px;color:var(--ink)}
         </div>
         <button class="btn btn-danger btn-block" id="btn-reset">🗑 清除所有資料（重新開始）</button>
         <div class="hint" style="text-align:center" id="ver-note"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 使用手冊 ========== -->
+  <div id="manual" class="hidden">
+    <div class="man-head">
+      <h1>📖 使用手冊</h1>
+      <button class="btn btn-sm" style="background:rgba(255,255,255,.15);color:#fff" id="man-close">關閉</button>
+    </div>
+    <div class="man-tabs">
+      <button data-mv="parent" class="on">家長端</button>
+      <button data-mv="kid">小朋友端</button>
+      <button data-mv="faq">常見問題</button>
+    </div>
+    <div class="man-body" id="man-body"></div>
+  </div>
+
+  <div id="modal-feedback" class="modal-mask hidden">
+    <div class="modal">
+      <h3>💬 意見回饋</h3>
+      <p style="font-size:13.5px;color:var(--ink2);line-height:1.8;margin-bottom:14px">
+        不用客氣，覺得哪裡難用就直說。看不懂的地方、希望多什麼功能、小孩的反應，都很有幫助。</p>
+      <div class="field"><label>這則是關於</label>
+        <div class="fb-types" id="fb-types">
+          <button data-fb="建議" class="on">💡 功能建議</button>
+          <button data-fb="問題">🐛 遇到問題</button>
+          <button data-fb="其他">💬 其他</button>
+        </div>
+      </div>
+      <div class="field" style="margin-bottom:6px"><label>想說的話</label>
+        <textarea id="fb-text" maxlength="1000" placeholder="例如：希望任務可以設定每週重複，不用每次手動鋪。"></textarea>
+        <div class="fb-count" id="fb-count">0 / 1000</div>
+      </div>
+      <div class="field"><label>聯絡方式（可留可不留）</label>
+        <input type="text" id="fb-contact" maxlength="60" placeholder="Email，方便我回覆你或問細節">
+      </div>
+      <div class="hint" id="fb-note" style="margin-top:0"></div>
+      <div style="display:flex;gap:10px;margin-top:14px">
+        <button class="btn btn-ghost" style="flex:1" data-close>取消</button>
+        <button class="btn btn-primary" style="flex:1" id="fb-send">送出</button>
       </div>
     </div>
   </div>
@@ -539,7 +709,11 @@ input,select,textarea{font-family:inherit;font-size:16px;color:var(--ink)}
 /* 小小任務家 KidQuest v3.3.1 — 多小孩切換 + PWA（可安裝／離線）+ 備份匯出匯入
    注音字典 ZY_CHAR / ZY_PHRASE 由 zhuyin-data.js 提供（需先於本檔載入） */
 "use strict";
-const APP_VER = "3.4.0";
+const APP_VER = "3.5.0";
+/* 意見回饋收集端點（Google Apps Script 網頁應用程式 /exec 網址）。
+   留空時：回饋不會遺失，會存在本機佇列，設定好網址後下次開啟自動補送。
+   設定方式見 README-部署.md 第七節。 */
+const FEEDBACK_URL = "";
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const KEY = "kidquest_v2";
@@ -618,6 +792,7 @@ function defaultState() {
     v: 3,
     children: [], activeId: null,
     pin: "0000", autoApprove: false, zhuyin: true, switchLock: false,
+    introSeen: false, fbQueue: [],
     tasks: deep(PRESET_TASKS),
     rewards: deep(PRESET_REWARDS),
     data: {},
@@ -645,6 +820,8 @@ function migrate() {
   if (!S.activeId || !S.children.some(c => c.id === S.activeId)) S.activeId = S.children.length ? S.children[0].id : null;
   if (S.zhuyin === undefined) S.zhuyin = true;
   if (S.switchLock === undefined) S.switchLock = false;
+  if (S.introSeen === undefined) S.introSeen = false;
+  if (!Array.isArray(S.fbQueue)) S.fbQueue = [];
   if (!/^\d{4}$/.test(S.pin || "")) S.pin = "0000";
   if (!S.tasks) S.tasks = deep(PRESET_TASKS);
   if (!S.rewards) S.rewards = deep(PRESET_REWARDS);
@@ -720,7 +897,7 @@ function streak(cid) {
 }
 
 /* ---------- 畫面切換 ---------- */
-function show(id) { ["setup", "kid", "parent"].forEach(s => $("#" + s).classList.toggle("hidden", s !== id)); }
+function show(id) { ["intro", "setup", "kid", "parent"].forEach(s => $("#" + s).classList.toggle("hidden", s !== id)); }
 function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), 1800); }
 function confetti() {
   const box = $("#confetti"), colors = ["#FFB300", "#5B7FFF", "#FF6B9A", "#2EC27E", "#FFD65C"];
@@ -1201,6 +1378,244 @@ function initPWA() {
   window.addEventListener("appinstalled", () => { deferredPrompt = null; toast("已加到主畫面 🎉"); });
 }
 
+/* ---------- 功能介紹（首次開啟；設定頁可重看） ---------- */
+let introIdx = 0;
+function introCount() { return $$("#intro-track .slide").length; }
+function drawIntro() {
+  const n = introCount();
+  $("#intro-dots").innerHTML = Array.from({ length: n }, (_, i) => `<i class="${i === introIdx ? "on" : ""}"></i>`).join("");
+  $("#intro-next").textContent = introIdx >= n - 1 ? "開始使用 🚀" : "下一步";
+  $("#intro-skip").classList.toggle("hidden", introIdx >= n - 1);
+}
+function openIntro() {
+  introIdx = 0;
+  show("intro");
+  const t = $("#intro-track");
+  t.scrollLeft = 0;
+  drawIntro();
+  t.onscroll = () => {
+    const i = Math.round(t.scrollLeft / t.clientWidth);
+    if (i !== introIdx) { introIdx = i; drawIntro(); }
+  };
+}
+function endIntro() {
+  S.introSeen = true; save();
+  if (!S.children.length) { show("setup"); initSetup(); }
+  else { show("kid"); renderKid(); }
+}
+
+/* ---------- 使用手冊 ---------- */
+/* 手冊截圖：PWA 版走 images/ 目錄；單檔版由 build-standalone.py 換成內嵌 data URI */
+const IMG = {};
+const SHOT = (f, cap) => `<figure class="shot"><img src="${IMG[f] || ("images/" + f)}" alt="${cap}" loading="lazy"><figcaption>${cap}</figcaption></figure>`;
+const SEC = (n, title, body) => `<section class="man-sec"><h3><span class="n">${n}</span>${title}</h3>${body}</section>`;
+
+const MANUAL = {
+  parent: [
+    SEC(1, "進入家長模式", `
+      <p>小孩端右上角的 🔒 就是入口，輸入 4 位數密碼進入。<b>預設密碼是 0000</b>，第一次使用請先到設定改掉。</p>
+      ${SHOT("manual-parent-pin.webp", "小孩端右上角 🔒 → 輸入密碼")}
+      <div class="note"><b>💡</b><span>這道密碼只是「家長閘門」，用來擋住小孩，不是資安機制。改成小孩猜不到、你記得住的四位數就好。</span></div>`),
+    SEC(2, "出任務", `
+      <p>這是你最常用的一頁。順序是：<b>先選日期 → 再勾任務 → 按指派</b>。</p>
+      ${SHOT("manual-parent-assign.webp", "出任務：上方選日期，中間勾任務，最下方確認已指派清單")}
+      <ul>
+        <li><b>日期可以多選</b>：點格子切換。「未來 7 天」「平日」「週末」是快捷鍵，常態任務一次鋪好，不用每天重來。</li>
+        <li><b>任務分兩類</b>：⭐ 基本任務是每天該做的（點數低），💎 進階任務是額外挑戰（點數高）。</li>
+        <li><b>自訂新任務</b>：任務庫裡沒有的自己加，可以選圖示和點數。任務庫是全家共用的。</li>
+        <li><b>多個小孩</b>：最上方會出現「出任務給誰」，先選對象再指派。勾「同時指派給所有小孩」可以一次發給全部。</li>
+        <li>同一天同一個任務不會重複指派；指派後還沒做的可以按「移除」收回。</li>
+      </ul>
+      <div class="note"><b>💡</b><span>改任務庫裡的名稱或點數時，<b>今天以後還沒完成</b>的已指派任務會跟著更新；已完成或送審中的點數會凍結不動，不會事後被改掉。</span></div>`),
+    SEC(3, "審核小孩完成的任務", `
+      <p>小孩打勾後不會直接入點，會先進到「審核」等你確認。分頁上有紅點就代表有待審核的。</p>
+      ${SHOT("manual-parent-approve.webp", "審核：核准後才入點，也可以退回")}
+      <ul>
+        <li><b>核准</b> → 點數立刻進到那個小孩的帳上。</li>
+        <li><b>退回</b> → 任務變回未完成，小孩可以重做。</li>
+        <li>有多個小孩時，所有人的待審核會集中在這一頁，每張卡片標示是誰的，不用切換。</li>
+      </ul>
+      <div class="note"><b>💡</b><span>覺得每次都要審很麻煩？到<b>設定 → 完成免審核</b>打開，小孩打勾就直接入點。適合已經建立信任、或年紀較大的孩子。</span></div>`),
+    SEC(4, "獎品與發獎", `
+      <p>獎品由你設定要幾點才能換。小孩換了之後會進到「待核銷」，等你實際給獎品後按「發獎核銷」。</p>
+      ${SHOT("manual-parent-rewards.webp", "獎品：上方是獎品庫，下方是待核銷與已核銷紀錄")}
+      <ul>
+        <li>獎品庫全家共用，但<b>點數各自計算</b>，不會互相影響。</li>
+        <li>「發獎核銷」是給你自己記帳用的——避免答應了卻忘記兌現。</li>
+        <li>建議由低到高排：15 點的小獎（看卡通）讓孩子很快嘗到甜頭，120 點的大獎（玩具）撐起長期目標。</li>
+      </ul>`),
+    SEC(5, "設定與備份", `
+      <p>小孩管理、注音開關、密碼、備份都在這裡。</p>
+      ${SHOT("manual-parent-settings.webp", "設定：小孩管理、各項開關、資料備份")}
+      <ul>
+        <li><b>小孩管理</b>：新增／編輯／刪除小孩。刪除會連同該小孩的點數與紀錄一起刪掉，不能復原。</li>
+        <li><b>顯示注音</b>：小孩認字了就可以關掉。</li>
+        <li><b>切換小孩需要密碼</b>：防止兄弟姊妹互相打勾、亂兌換。</li>
+        <li><b>資料備份</b>：見下方警告，這是最重要的一項。</li>
+      </ul>
+      <div class="note warn"><b>⚠️</b><span><b>資料只存在這台手機的瀏覽器裡</b>，不會上雲端、換手機不會跟著走。清除瀏覽器資料、iOS 久未開啟都可能整包消失。<b>請每個月按一次「下載備份」</b>，這是目前唯一的救命繩。</span></div>`),
+  ],
+  kid: [
+    SEC(1, "今天要做什麼", `
+      <p>打開就是今天的任務。上方是金幣總數和連續達成天數，中間可以左右切換前後三天。</p>
+      ${SHOT("manual-kid-today.webp", "小孩端首頁：金幣、日期列、今天的任務")}
+      <ul>
+        <li>任務名稱旁邊有<b>注音</b>，還不太認字也能自己讀。</li>
+        <li>綠色進度條顯示今天完成幾項了。</li>
+        <li>⭐ 是基本任務，💎 是進階任務、點數比較高。</li>
+        <li>明天以後的任務看得到但不能打勾，會顯示「還沒到喔」。</li>
+      </ul>`),
+    SEC(2, "完成任務", `
+      <p>做完了就按右邊的圈圈打勾。</p>
+      ${SHOT("manual-kid-pending.webp", "打勾後變成 ⏳ 等家長確認；核准後變成綠色 ✓")}
+      <ul>
+        <li>打勾後會變成 <b>⏳ 等家長確認中</b>，要等家長核准才會拿到金幣。</li>
+        <li>家長核准後變成綠色 ✓，金幣會跳動一下，還有彩帶慶祝。</li>
+        <li>如果家長開了「完成免審核」，打勾就直接拿到金幣。</li>
+      </ul>`),
+    SEC(3, "換獎品", `
+      <p>下方「🎁 兌換獎品」可以看到所有獎品，以及自己還差幾點。</p>
+      ${SHOT("manual-kid-shop.webp", "兌換專區：點數夠會出現兌換鈕，不夠會顯示進度條")}
+      <ul>
+        <li>點數不夠時會顯示<b>進度條和還差幾點</b>，知道還要努力多久。</li>
+        <li>點數夠了會出現「兌換」按鈕，換完金幣就會扣掉。</li>
+        <li>換完要<b>拿給家長按「發獎」</b>才算真的領到，下方紀錄可以看狀態。</li>
+      </ul>`),
+    SEC(4, "看自己的紀錄", `
+      <p>「📅 紀錄」是一整個月的月曆，哪天拿了幾點一目了然。</p>
+      ${SHOT("manual-kid-history.webp", "月曆：有點數的日子會標記，可以點開看細節")}
+      <ul>
+        <li>有做任務的日子會顯示 <b>+點數</b>，點下去可以看那天做了什麼。</li>
+        <li>上方箭頭可以往前往後翻月份，最下面是這個月的總點數。</li>
+      </ul>`),
+    SEC(5, "換人玩", `
+      <p>有兩個以上的小孩時，點左上角的頭像就能換人。</p>
+      ${SHOT("manual-kid-switch.webp", "點頭像切換：每個人的金幣與待確認項數都看得到")}
+      <ul>
+        <li>每個人的<b>金幣、任務、兌換紀錄完全分開</b>，不會互相影響。</li>
+        <li>如果家長開了「切換小孩需要密碼」，換人時要先輸入家長密碼。</li>
+      </ul>`),
+  ],
+  faq: [
+    ["資料存在哪裡？換手機會不見嗎？",
+     "存在<b>這台裝置的瀏覽器</b>裡，不會上雲端。換手機、清除瀏覽器資料、iOS Safari 連續 7 天沒開，都可能整包消失。請到<b>設定 → 資料備份 → 下載備份</b>存一份 JSON，換裝置時用「還原備份」帶過去。建議每月備份一次。"],
+    ["小孩打勾了，為什麼點數沒有增加？",
+     "預設要家長核准才入點。到<b>家長模式 → 審核</b>按「核准」就會入帳。不想每次審核的話，<b>設定 → 完成免審核</b>打開即可。"],
+    ["兩個小孩可以共用同一台手機嗎？",
+     "可以，這正是設計的用法。到<b>設定 → 小孩管理 → 新增小孩</b>，之後點小孩端左上角頭像就能切換。點數、任務、兌換紀錄各自獨立，任務庫和獎品則是全家共用。"],
+    ["怕兄弟姊妹互相亂按怎麼辦？",
+     "到<b>設定</b>打開「切換小孩需要密碼」，換人時就會要求輸入家長密碼。"],
+    ["忘記家長密碼怎麼辦？",
+     "沒有找回機制（資料都在本機、沒有帳號系統）。最後手段是清除這個網站的瀏覽器資料重來，但<b>所有紀錄都會消失</b>——所以請務必先有備份。"],
+    ["注音可以關掉嗎？",
+     "可以。<b>設定 → 顯示注音（小孩端）</b>關掉即可。孩子認字之後關掉，畫面會清爽很多。"],
+    ["怎麼把它變成手機上的 App？",
+     "<b>iPhone / iPad</b>：一定要用 Safari 開網址，按下方「分享」→「加入主畫面」。<b>Android</b>：到家長模式 → 設定按「立即安裝」，或用瀏覽器選單的「安裝應用程式」。裝好後有獨立圖示、全螢幕，<b>沒網路也能開</b>。"],
+    ["任務點數改了，之前完成的會被改掉嗎？",
+     "不會。改任務庫只會影響<b>今天以後、還沒完成</b>的任務；已完成和送審中的點數是凍結的，孩子已經賺到的不會被追溯調整。"],
+    ["注音的讀音是依什麼標準？",
+     "教育部《重編國語辭典修訂本》。例如「垃圾」是 ㄌㄜˋ ㄙㄜˋ，不是大陸讀音的 ㄌㄚ ㄐㄧ。如果發現哪個字讀音不對，請用<b>意見回饋</b>告訴我。"],
+  ],
+};
+
+let manView = "parent";
+function renderManual() {
+  $$("#manual .man-tabs button").forEach(b => b.classList.toggle("on", b.dataset.mv === manView));
+  const body = $("#man-body");
+  if (manView === "faq") {
+    body.innerHTML = `<p class="hint" style="margin:0 2px 12px">點問題展開答案。</p>`
+      + MANUAL.faq.map(([q, a]) => `<details class="faq"><summary>${q}</summary><div class="ans">${a}</div></details>`).join("");
+  } else {
+    const intro = manView === "parent"
+      ? `<p class="hint" style="margin:0 2px 12px">家長模式負責出任務、審核、發獎與設定。以下畫面都在 🔒 進入後看得到。</p>`
+      : `<p class="hint" style="margin:0 2px 12px">這一頁可以直接拿給小孩看，或你自己先熟悉一下他們會看到什麼。</p>`;
+    body.innerHTML = intro + MANUAL[manView].join("");
+  }
+  body.insertAdjacentHTML("beforeend",
+    `<div class="man-sec" style="text-align:center">
+       <p style="margin:0 0 12px">沒找到你要的答案，或覺得哪裡怪怪的？<br>直接告訴我，我會把它改好。</p>
+       <button class="btn btn-primary btn-sm btn-block" id="man-fb">💬 給我回饋</button>
+     </div>`);
+  $("#man-fb").onclick = () => { $("#manual").classList.add("hidden"); openFeedback(); };
+  body.scrollTop = 0;
+}
+function openManual(view) {
+  manView = view || "parent";
+  renderManual();
+  $("#manual").classList.remove("hidden");
+}
+
+/* ---------- 意見回饋 ---------- */
+let fbType = "建議";
+function openFeedback() {
+  fbType = "建議";
+  $$("#fb-types button").forEach(b => b.classList.toggle("on", b.dataset.fb === fbType));
+  $("#fb-text").value = ""; $("#fb-contact").value = ""; $("#fb-count").textContent = "0 / 1000";
+  const q = (S.fbQueue || []).length;
+  $("#fb-note").innerHTML = FEEDBACK_URL
+    ? "送出後我會看到你的內容與 App 版本，不會收集小孩姓名或任何任務紀錄。"
+    : "目前尚未接上收集服務。按下方按鈕會<b>把內容存在這台裝置並複製到剪貼簿</b>——你可以直接貼給我，等服務接上後也會自動補送。"
+      + (q ? `（目前有 ${q} 則待送出）` : "");
+  $("#fb-send").textContent = FEEDBACK_URL ? "送出" : "儲存並複製";
+  $("#modal-feedback").classList.remove("hidden");
+  setTimeout(() => $("#fb-text").focus(), 120);
+}
+function fbPayload(text) {
+  return {
+    ts: new Date().toISOString(),
+    type: fbType,
+    text,
+    contact: $("#fb-contact").value.trim(),
+    ver: APP_VER,
+    kids: S.children.length,
+    standalone: isStandalone() ? "1" : "0",
+    ua: navigator.userAgent.slice(0, 180),
+  };
+}
+async function postFeedback(item) {
+  if (!FEEDBACK_URL) return false;
+  const body = new URLSearchParams(item);
+  try {
+    await fetch(FEEDBACK_URL, { method: "POST", body });
+    return true;
+  } catch (e) {
+    try { await fetch(FEEDBACK_URL, { method: "POST", body, mode: "no-cors" }); return true; }
+    catch (e2) { return false; }
+  }
+}
+async function copyText(t) {
+  try { await navigator.clipboard.writeText(t); return true; }
+  catch (e) {
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = t; ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select();
+      const ok = document.execCommand("copy"); ta.remove(); return ok;
+    } catch (e2) { return false; }
+  }
+}
+async function sendFeedback() {
+  const text = $("#fb-text").value.trim();
+  if (text.length < 4) return toast("再多寫幾個字，我才知道怎麼改 🙂");
+  const item = fbPayload(text);
+  const sent = await postFeedback(item);
+  if (!sent) {
+    S.fbQueue.push(item); save();
+    const ok = await copyText(`[${item.type}] ${item.text}${item.contact ? "\n聯絡：" + item.contact : ""}\n(v${item.ver})`);
+    toast(ok ? "已儲存並複製，貼給我就行 📋" : "已儲存在這台裝置，之後會自動補送");
+  } else {
+    toast("收到了，謝謝你 🙌");
+    confetti();
+  }
+  $("#modal-feedback").classList.add("hidden");
+}
+async function flushFeedbackQueue() {
+  if (!FEEDBACK_URL || !S.fbQueue || !S.fbQueue.length) return;
+  const rest = [];
+  for (const item of S.fbQueue) { if (!(await postFeedback(item))) rest.push(item); }
+  if (rest.length !== S.fbQueue.length) { S.fbQueue = rest; save(); }
+}
+
 /* ---------- 事件綁定 ---------- */
 function bind() {
   // 小孩端
@@ -1336,6 +1751,30 @@ function bind() {
     editChildId = null; save(); $("#modal-child").classList.add("hidden"); renderParent();
   };
 
+  // 功能介紹
+  $("#intro-next").onclick = () => {
+    const t = $("#intro-track");
+    if (introIdx >= introCount() - 1) return endIntro();
+    t.scrollTo({ left: (introIdx + 1) * t.clientWidth, behavior: "smooth" });
+  };
+  $("#intro-skip").onclick = endIntro;
+
+  // 使用手冊
+  $("#btn-manual").onclick = () => openManual("parent");
+  $("#man-close").onclick = () => $("#manual").classList.add("hidden");
+  $(".man-tabs").onclick = e => { const b = e.target.closest("[data-mv]"); if (!b) return; manView = b.dataset.mv; renderManual(); };
+  $("#btn-replay-intro").onclick = openIntro;
+
+  // 意見回饋
+  $("#btn-feedback").onclick = openFeedback;
+  $("#fb-types").onclick = e => {
+    const b = e.target.closest("[data-fb]"); if (!b) return;
+    fbType = b.dataset.fb;
+    $$("#fb-types button").forEach(x => x.classList.toggle("on", x === b));
+  };
+  $("#fb-text").oninput = e => { $("#fb-count").textContent = `${e.target.value.length} / 1000`; };
+  $("#fb-send").onclick = sendFeedback;
+
   // 範例資料 / 備份 / 安裝
   $("#su-demo").onclick = () => { seedDemo(); show("kid"); renderKid(); confetti(); toast("已載入範例資料，隨時可在設定清除"); };
   $("#btn-export").onclick = exportBackup;
@@ -1374,7 +1813,9 @@ load();
 if (!S) S = defaultState();  // 第一次開啟：乾淨初始設定（範例資料改由設定頁按鈕載入）
 migrate(); save();           // 舊版單一小孩資料自動升級為多小孩結構
 initPin(); bind(); initPWA();
-if (!S.children.length) { show("setup"); initSetup(); }
+flushFeedbackQueue();                       // 有未送出的回饋就補送
+if (!S.introSeen) openIntro();              // 第一次開啟：先看功能介紹
+else if (!S.children.length) { show("setup"); initSetup(); }
 else { show("kid"); renderKid(); }
 </script>
 </body>
