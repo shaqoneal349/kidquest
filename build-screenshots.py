@@ -17,8 +17,8 @@ PORT = 8823
 W, H, SCALE = 470, 880, 2   # 470 是版面不被裁切的最小寬度
 
 SHOTS = [
-    "kid-today", "kid-pending", "kid-shop", "kid-history", "kid-switch",
-    "parent-pin", "parent-assign", "parent-approve", "parent-rewards", "parent-settings",
+    "kid-today", "kid-pending", "kid-shop", "kid-history", "kid-ledger", "kid-switch",
+    "parent-pin", "parent-assign", "parent-approve", "parent-adjust", "parent-rewards", "parent-settings",
 ]
 
 DRIVER = r"""
@@ -47,18 +47,20 @@ DRIVER = r"""
     "kid-today":    () => K("today"),
     "kid-pending":  () => K("today"),
     "kid-shop":     () => K("shop"),
-    "kid-history":  () => { calYM = null; K("history"); },
+    "kid-history":  () => { calYM = null; histView = "cal"; K("history"); },
+    "kid-ledger":   () => { histView = "log"; K("history"); },
     "kid-switch":   () => { K("today"); drawSwitch(); document.querySelector("#modal-switch").classList.remove("hidden"); },
     "parent-pin":   () => { K("today"); pinBuf = "00"; drawPin(); document.querySelector("#modal-pin").classList.remove("hidden"); },
     "parent-assign":() => { pView = "assign"; libSel = new Set(["b1", "b3"]); assignSel = new Set([todayStr(0), todayStr(1), todayStr(2)]); P(); },
     "parent-approve":() => { pView = "approve"; P(); },
+    "parent-adjust":() => { pView = "adjust"; adjKind = "minus"; P(); },
     "parent-rewards":() => { pView = "rewards"; P(); },
     "parent-settings":() => { pView = "settings"; P(); },
   };
   (acts[id] || (() => {}))();
 
   // 部分畫面需要捲動才看得到重點
-  const scroll = { "parent-rewards": 0, "parent-settings": 250, "kid-shop": 0 };
+  const scroll = { "parent-rewards": 0, "parent-settings": 250, "kid-shop": 0, "kid-ledger": 0 };
   const sc = document.querySelector(id.startsWith("parent") ? "#parent .scroll" : "#kid-scroll");
   if (sc) sc.scrollTop = scroll[id] || 0;
 

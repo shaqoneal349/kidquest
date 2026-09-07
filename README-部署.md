@@ -1,4 +1,4 @@
-# 小小任務家 v3.5.1 — 階段一發布包
+# 小小任務家 v3.6.0 — 階段一發布包
 
 > 🟢 **已上線**：https://shaqoneal349.github.io/kidquest/
 > 📦 **原始碼**：https://github.com/shaqoneal349/kidquest（public，GitHub Pages 由 `main` / root 自動發布）
@@ -13,7 +13,7 @@ kidquest-pwa/
 ├─ manifest.webmanifest  ← App 名稱、圖示、啟動方式
 ├─ sw.js                 ← Service Worker（離線快取）
 ├─ icons/                ← 192 / 512 / apple-touch / favicon
-└─ images/               ← 使用手冊的 10 張畫面截圖（WebP，約 194KB）
+└─ images/               ← 使用手冊的 12 張畫面截圖（WebP，約 241KB）
 
 build-zhuyin.py         ← 由教育部辭典重建注音字典
 build-standalone.py     ← 由 index.html 生成「單檔版」，輸出檔名依版本自動決定
@@ -96,7 +96,7 @@ git push -u origin main
 ## 四、之後要改版怎麼發布
 
 1. 改 `index.html`（或 `zhuyin-data.js`）
-2. **把 `sw.js` 裡的 `CACHE = "kidquest-v3.5.1"` 版本號往上加**（例如 `v3.3.2`）
+2. **把 `sw.js` 裡的 `CACHE = "kidquest-v3.6.0"` 版本號往上加**（例如 `v3.3.2`）
 3. `git add -A && git commit -m "..." && git push`（GitHub Pages 約 1 分鐘後自動更新）
 
 沒有改版本號的話，因為是 cache-first，使用者會一直看到舊版。

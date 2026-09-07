@@ -315,6 +315,41 @@ input,select,textarea{font-family:inherit;font-size:16px;color:var(--ink)}
 #fb-text{width:100%;min-height:110px;padding:12px 14px;border:2px solid var(--line);border-radius:var(--r-sm);resize:vertical;line-height:1.7;outline:none}
 #fb-text:focus{border-color:var(--primary)}
 .fb-count{text-align:right;font-size:12px;color:var(--ink2);margin-top:4px}
+
+/* ===== 加扣點 ===== */
+.parent-tabs button{font-size:13px;padding:9px 2px}      /* 五個分頁，字級微調 */
+.bal-hero{background:linear-gradient(135deg,#FFD65C,#FFB300);border-radius:var(--r-lg);padding:14px 16px;
+  box-shadow:0 6px 16px rgba(255,179,0,.3);display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.bal-hero .who-av{width:44px;height:44px;border-radius:50%;background:#fff;font-size:24px;display:flex;
+  align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
+.bal-hero .who-av img{width:100%;height:100%;object-fit:cover}
+.bal-hero .num{font-size:30px;font-weight:900;color:#5C3D00;line-height:1}
+.bal-hero .lbl{font-size:12px;font-weight:800;color:#7A5200;margin-top:3px}
+.adj-item{display:flex;align-items:center;gap:10px;background:#fff;border-radius:var(--r-sm);padding:11px 12px;
+  margin-bottom:8px;border:2px solid transparent;box-shadow:var(--shadow)}
+.adj-item .t-icon{font-size:24px;width:32px;text-align:center;flex-shrink:0}
+.adj-item .nm{flex:1;font-size:14.5px;font-weight:700;min-width:0}
+.adj-item .go{border-radius:999px;padding:7px 14px;font-size:13.5px;font-weight:800;flex-shrink:0}
+.adj-item .go.minus{background:#FFE3E3;color:#C0392B}
+.adj-item .go.plus{background:#DCF6EA;color:#1E9963}
+.adj-item .edt{color:var(--primary);font-size:13px;font-weight:700;padding:4px 6px}
+.adj-item .del{color:#C9536B;font-size:13px;font-weight:700;padding:4px 6px}
+.log-row{display:flex;align-items:center;gap:10px;background:#fff;border-radius:var(--r-sm);padding:10px 12px;
+  margin-bottom:8px;box-shadow:var(--shadow)}
+.log-row .ic{font-size:22px;width:30px;text-align:center;flex-shrink:0}
+.log-row .bd{flex:1;min-width:0}
+.log-row .bd b{font-size:14.5px;display:block;line-height:1.5}
+.log-row .bd small{font-size:12px;color:var(--ink2)}
+.log-row .amt{font-weight:900;font-size:15px;flex-shrink:0}
+.log-row .amt.up{color:#1E9963}
+.log-row .amt.down{color:#C0392B}
+.log-row .undo{color:var(--ink2);font-size:12.5px;font-weight:700;padding:5px 8px;flex-shrink:0}
+.cal-cell .minus{font-size:10px;color:#C0392B;font-weight:900;background:#FFE3E3;border-radius:99px;padding:1px 5px;white-space:nowrap}
+.tabbar button{position:relative}
+.tabbar .badge{position:absolute;top:2px;left:50%;margin-left:6px;background:var(--berry);color:#fff;
+  font-size:10px;border-radius:99px;padding:1px 5px;font-weight:900;transform:none}
+.ledger-date{font-size:12.5px;font-weight:800;color:var(--ink2);margin:14px 4px 8px}
+.ledger-date:first-child{margin-top:0}
 </style>
 </head>
 <body>
@@ -438,6 +473,11 @@ input,select,textarea{font-family:inherit;font-size:16px;color:var(--ink)}
       </div>
       <!-- 歷史回顧（月曆） -->
       <div id="kv-history" class="hidden">
+        <div class="seg-toggle">
+          <button data-hv="cal" class="on">📅 月曆</button>
+          <button data-hv="log">🧾 明細</button>
+        </div>
+        <div id="hv-cal">
         <div class="cal-head">
           <button class="cal-nav" id="cal-prev">‹</button>
           <h2 id="cal-title"></h2>
@@ -445,13 +485,15 @@ input,select,textarea{font-family:inherit;font-size:16px;color:var(--ink)}
         </div>
         <div class="cal-grid" id="cal-grid"></div>
         <div class="cal-sum" id="cal-sum"></div>
+        </div>
+        <div id="hv-log" class="hidden"></div>
       </div>
     </div>
 
     <div class="tabbar">
       <button data-kv="today" class="on"><span class="ico">✅</span>今日任務</button>
       <button data-kv="shop"><span class="ico">🎁</span>兌換獎品</button>
-      <button data-kv="history"><span class="ico">📅</span>紀錄</button>
+      <button data-kv="history"><span class="ico">📅</span>紀錄<span class="badge hidden" id="log-badge"></span></button>
     </div>
   </div>
 
@@ -464,6 +506,7 @@ input,select,textarea{font-family:inherit;font-size:16px;color:var(--ink)}
     <div class="parent-tabs">
       <button data-pv="assign" class="on">出任務</button>
       <button data-pv="approve">審核<span class="dot hidden" id="approve-dot"></span></button>
+      <button data-pv="adjust">加扣點</button>
       <button data-pv="rewards">獎品</button>
       <button data-pv="settings">設定</button>
     </div>
@@ -499,6 +542,26 @@ input,select,textarea{font-family:inherit;font-size:16px;color:var(--ink)}
       <!-- 審核 -->
       <div id="pv-approve" class="hidden">
         <div id="approve-list"></div>
+      </div>
+      <!-- 加扣點 -->
+      <div id="pv-adjust" class="hidden">
+        <div id="adjust-who" class="hidden">
+          <div class="section-title" style="margin-top:0">要調整誰的點數</div>
+          <div class="child-bar" id="adjust-bar"></div>
+        </div>
+        <div class="bal-hero">
+          <div class="who-av" id="adj-av"></div>
+          <div><div class="num" id="adj-balance">0</div><div class="lbl" id="adj-name">目前點數</div></div>
+        </div>
+        <div class="seg-toggle">
+          <button data-adjkind="minus" class="on">➖ 扣點</button>
+          <button data-adjkind="plus">➕ 加點</button>
+        </div>
+        <div id="adj-list"></div>
+        <button class="btn btn-ghost btn-sm btn-block" id="btn-new-adjitem" style="margin-top:6px">＋ 自訂項目</button>
+        <button class="btn btn-ghost btn-sm btn-block" id="btn-adj-custom" style="margin-top:8px">✍️ 這次特別的（單次加扣，不存進項目庫）</button>
+        <div class="section-title">最近的調整紀錄</div>
+        <div id="adj-log"></div>
       </div>
       <!-- 獎品 -->
       <div id="pv-rewards" class="hidden">
@@ -570,7 +633,7 @@ input,select,textarea{font-family:inherit;font-size:16px;color:var(--ink)}
         </div>
         <div class="card">
           <div class="field"><label>任務庫 / 獎品維護</label><div style="font-size:12.5px;color:var(--ink2);margin-bottom:8px">把預設任務與獎品還原成出廠內容（自訂項目與已指派紀錄不受影響）</div></div>
-          <button class="btn btn-ghost btn-sm btn-block" id="btn-restore-presets">↺ 還原預設任務與獎品</button>
+          <button class="btn btn-ghost btn-sm btn-block" id="btn-restore-presets">↺ 還原預設任務、獎品與加扣點項目</button>
         </div>
         <button class="btn btn-danger btn-block" id="btn-reset">🗑 清除所有資料（重新開始）</button>
         <div class="hint" style="text-align:center" id="ver-note"></div>
@@ -654,6 +717,36 @@ input,select,textarea{font-family:inherit;font-size:16px;color:var(--ink)}
     </div>
   </div>
 
+  <div id="modal-adjitem" class="modal-mask hidden">
+    <div class="modal">
+      <h3 id="ma-title">＋ 自訂項目</h3>
+      <div class="field"><label>事由</label><input type="text" id="ma-name" maxlength="20" placeholder="例如：說話不算話"></div>
+      <div class="field"><label>選個圖示</label><div class="icon-grid" id="ma-icons"></div></div>
+      <div class="field"><label>類型</label>
+        <select id="ma-kind"><option value="minus">➖ 扣點</option><option value="plus">➕ 加點</option></select>
+      </div>
+      <div class="field"><label>點數</label><input type="number" id="ma-pts" min="1" max="999" value="5"></div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-ghost" style="flex:1" data-close>取消</button>
+        <button class="btn btn-primary" style="flex:1" id="ma-save">存進項目庫</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-adjust" class="modal-mask hidden">
+    <div class="modal">
+      <h3 id="mj-title">➖ 扣點</h3>
+      <div class="field"><label>事由（小孩看得到，請寫清楚）</label>
+        <input type="text" id="mj-reason" maxlength="24" placeholder="例如：說好九點睡卻拖到十點"></div>
+      <div class="field"><label>點數</label><input type="number" id="mj-pts" min="1" max="999" value="5"></div>
+      <div class="hint" id="mj-note" style="margin-top:0"></div>
+      <div style="display:flex;gap:10px;margin-top:14px">
+        <button class="btn btn-ghost" style="flex:1" data-close>取消</button>
+        <button class="btn btn-primary" style="flex:1" id="mj-ok">確定</button>
+      </div>
+    </div>
+  </div>
+
   <div id="modal-task" class="modal-mask hidden">
     <div class="modal">
       <h3 id="mt-title">＋ 自訂新任務</h3>
@@ -709,7 +802,7 @@ input,select,textarea{font-family:inherit;font-size:16px;color:var(--ink)}
 /* 小小任務家 KidQuest v3.3.1 — 多小孩切換 + PWA（可安裝／離線）+ 備份匯出匯入
    注音字典 ZY_CHAR / ZY_PHRASE 由 zhuyin-data.js 提供（需先於本檔載入） */
 "use strict";
-const APP_VER = "3.5.1";
+const APP_VER = "3.6.0";
 /* 意見回饋收集端點（Google Apps Script 網頁應用程式 /exec 網址）。
    留空時：回饋不會遺失，會存在本機佇列，設定好網址後下次開啟自動補送。
    設定方式見 feedback-apps-script.gs 檔頭與 README-部署.md 第七節。 */
@@ -747,6 +840,20 @@ const PRESET_REWARDS = [
   { id: "r3", name: "去公園野餐", icon: "🧺", pts: 60 },
   { id: "r4", name: "小樂高一盒", icon: "🧱", pts: 120 },
 ];
+const PRESET_ADJUSTMENTS = [
+  { id: "m1", name: "對家人大吼", icon: "😤", pts: 5, kind: "minus" },
+  { id: "m2", name: "說謊", icon: "🤥", pts: 10, kind: "minus" },
+  { id: "m3", name: "動手打人", icon: "✋", pts: 10, kind: "minus" },
+  { id: "m4", name: "東西亂丟不收", icon: "🧺", pts: 3, kind: "minus" },
+  { id: "m5", name: "超時看電視平板", icon: "📺", pts: 5, kind: "minus" },
+  { id: "m6", name: "賴床遲到", icon: "⏰", pts: 3, kind: "minus" },
+  { id: "g1", name: "主動幫忙做家事", icon: "🤝", pts: 5, kind: "plus" },
+  { id: "g2", name: "做錯事主動道歉", icon: "🙇", pts: 5, kind: "plus" },
+  { id: "g3", name: "友愛弟弟妹妹", icon: "💝", pts: 5, kind: "plus" },
+  { id: "g4", name: "被稱讚有禮貌", icon: "😊", pts: 5, kind: "plus" },
+];
+const ADJ_ICONS = ["😤", "🤥", "✋", "🧺", "📺", "⏰", "🙉", "🍬", "😴", "🚫", "💢", "🧦",
+  "🤝", "🙇", "💝", "😊", "🌟", "📚", "🫶", "🧹", "🎯", "💪"];
 const AVATARS = ["🦖", "🐱", "🦄", "🚀", "🐼", "🍓", "🐧", "🦊"];
 const ICON_SET = ["⭐", "🎒", "🪥", "✏️", "🧸", "🍚", "📖", "🗑️", "🌙", "💯", "📔", "🧼", "⚽", "🔤", "🎹", "🐶", "🌱", "🧹", "🥛", "🛏️", "🎨", "🚿", "👟", "❤️"];
 const RICON_SET = ["🎁", "📺", "🍦", "🧺", "🧱", "🎮", "🍭", "📚", "🎢", "🧋", "🚲", "🎬", "🍕", "⚽", "🎪", "💰", "🖍️", "🎂"];
@@ -798,6 +905,7 @@ function defaultState() {
     introSeen: false, fbQueue: [],
     tasks: deep(PRESET_TASKS),
     rewards: deep(PRESET_REWARDS),
+    adjItems: deep(PRESET_ADJUSTMENTS),
     data: {},
   };
 }
@@ -819,6 +927,8 @@ function migrate() {
   }
   delete S.child; delete S.days; delete S.redemptions;
   S.children.forEach(c => { if (!S.data[c.id]) S.data[c.id] = { days: {}, redemptions: [] }; });
+  if (!Array.isArray(S.adjItems)) S.adjItems = deep(PRESET_ADJUSTMENTS);
+  Object.values(S.data).forEach(b => { if (!Array.isArray(b.adjustments)) b.adjustments = []; });
   Object.keys(S.data).forEach(id => { if (!S.children.some(c => c.id === id)) delete S.data[id]; });
   if (!S.activeId || !S.children.some(c => c.id === S.activeId)) S.activeId = S.children.length ? S.children[0].id : null;
   if (S.zhuyin === undefined) S.zhuyin = true;
@@ -836,15 +946,17 @@ const kidOf = id => S.children.find(c => c.id === id) || null;
 const kid = () => kidOf(S.activeId) || S.children[0] || null;
 function bucket(cid) {
   const id = cid || S.activeId;
-  if (!S.data[id]) S.data[id] = { days: {}, redemptions: [] };
+  if (!S.data[id]) S.data[id] = { days: {}, redemptions: [], adjustments: [] };
+  if (!Array.isArray(S.data[id].adjustments)) S.data[id].adjustments = [];
   return S.data[id];
 }
 const D = cid => bucket(cid).days;          // 某位小孩的每日任務
 const R = cid => bucket(cid).redemptions;   // 某位小孩的兌換紀錄
+const ADJ = cid => bucket(cid).adjustments; // 某位小孩的加扣點紀錄（pts 帶正負號）
 function addChild(c) {
   const id = uid();
   S.children.push({ id, name: c.name, age: c.age, avatar: c.avatar });
-  S.data[id] = { days: {}, redemptions: [] };
+  S.data[id] = { days: {}, redemptions: [], adjustments: [] };
   if (!S.activeId) S.activeId = id;
   save(); return id;
 }
@@ -872,6 +984,10 @@ function seedDemo() {
   da[todayStr(1)] = [pick("b4", "todo"), pick("b5", "todo"), pick("b2", "todo")];
   da[todayStr(2)] = [pick("b6", "todo")];
   R(A).push({ id: uid(), name: "看 30 分鐘卡通", icon: "📺", pts: 15, date: todayStr(-1), status: "claimed", claimedDate: todayStr(-1) });
+  ADJ(A).push(
+    { id: uid(), date: todayStr(-1), pts: -5, reason: "對家人大吼", icon: "😤", seen: true },
+    { id: uid(), date: todayStr(0), pts: 5, reason: "主動幫忙做家事", icon: "🤝", seen: false },
+  );
   const db = D(B);
   db[todayStr(-2)] = [pick("b2", "done"), pick("b4", "done")];
   db[todayStr(-1)] = [pick("b2", "done"), pick("b4", "todo"), pick("b8", "done")];
@@ -883,7 +999,9 @@ function seedDemo() {
 /* ---------- 點數計算（皆以小孩為單位） ---------- */
 const earned = cid => Object.values(D(cid)).flat().filter(t => t.status === "done").reduce((a, t) => a + t.pts, 0);
 const spent = cid => R(cid).reduce((a, r) => a + r.pts, 0);
-const balance = cid => earned(cid) - spent(cid);
+const adjusted = cid => ADJ(cid).reduce((a, x) => a + x.pts, 0);   // 家長加扣，可正可負
+const balance = cid => earned(cid) - spent(cid) + adjusted(cid);
+const unseenAdj = cid => ADJ(cid).filter(x => !x.seen).length;
 const pendingCount = cid => Object.values(D(cid)).flat().filter(t => t.status === "pending").length;
 function streak(cid) {
   const days = D(cid);
@@ -967,6 +1085,7 @@ function initSetup() {
 
 /* ---------- 小孩端 ---------- */
 let kidView = "today";
+let histView = "cal";
 let kidDayOff = 0;
 const DAY_LABEL = { "-3": "大前天", "-2": "前天", "-1": "昨天", "0": "今天", "1": "明天", "2": "後天", "3": "大後天" };
 function renderKid() {
@@ -980,9 +1099,15 @@ function renderKid() {
   $("#streak-box").textContent = `🔥 連續達成 ${streak()} 天`;
   ["today", "shop", "history"].forEach(v => $("#kv-" + v).classList.toggle("hidden", v !== kidView));
   $$(".tabbar button").forEach(b => b.classList.toggle("on", b.dataset.kv === kidView));
+  refreshLogBadge();
   if (kidView === "today") renderToday();
   if (kidView === "shop") renderShop();
-  if (kidView === "history") renderCalendar();
+  if (kidView === "history") {
+    $("#hv-cal").classList.toggle("hidden", histView !== "cal");
+    $("#hv-log").classList.toggle("hidden", histView !== "log");
+    $$("#kv-history .seg-toggle [data-hv]").forEach(b => b.classList.toggle("on", b.dataset.hv === histView));
+    if (histView === "cal") renderCalendar(); else renderLedger();
+  }
 }
 function renderToday() {
   const days = D(), ds = todayStr(kidDayOff), list = days[ds] || [];
@@ -1063,6 +1188,7 @@ function renderCalendar() {
   $("#cal-title").textContent = `${y} 年 ${m + 1} 月`;
   const first = new Date(y, m, 1), daysInM = new Date(y, m + 1, 0).getDate();
   const p = n => String(n).padStart(2, "0");
+  const adjs = ADJ();
   let cells = "日一二三四五六".split("").map(w => `<div class="cal-wd">${w}</div>`).join("");
   for (let i = 0; i < first.getDay(); i++) cells += `<div class="cal-cell blank"></div>`;
   let monthPts = 0;
@@ -1073,8 +1199,12 @@ function renderCalendar() {
     monthPts += got;
     const isToday = ds === todayStr(), isFuture = ds > todayStr();
     const cls = ["cal-cell", isToday ? "today" : "", isFuture ? "future" : "", list.length ? "has" : ""].join(" ");
-    const mark = got > 0 ? `<span class="pts">+${got}</span>` : list.length ? `<span class="zero"></span>` : `<span style="height:14px"></span>`;
-    cells += `<div class="${cls}" ${list.length ? `data-day="${ds}"` : ""}><span>${d}</span>${mark}</div>`;
+    const minus = adjs.filter(x => x.date === ds && x.pts < 0).reduce((a, x) => a + x.pts, 0);
+    const mark = minus < 0 ? `<span class="minus">${minus}</span>`
+      : got > 0 ? `<span class="pts">+${got}</span>`
+      : list.length ? `<span class="zero"></span>` : `<span style="height:14px"></span>`;
+    const hasAdj = adjs.some(x => x.date === ds);
+    cells += `<div class="${cls}" ${list.length || hasAdj ? `data-day="${ds}"` : ""}><span>${d}</span>${mark}</div>`;
   }
   $("#cal-grid").innerHTML = cells;
   $("#cal-sum").textContent = `🪙 這個月共獲得 ${monthPts} 點`;
@@ -1090,6 +1220,13 @@ function openDayModal(ds) {
         : `<span class="pts" style="color:var(--ink2);font-weight:700">未完成</span>`;
     return `<div class="hist-task ${t.status === "done" ? "" : "miss"}"><span class="t-icon">${t.icon}</span>${zy(t.name)}${st}</div>`;
   }).join("");
+  const dayAdj = ADJ().filter(x => x.date === ds);
+  if (dayAdj.length) {
+    $("#md-list").insertAdjacentHTML("beforeend", dayAdj.map(x =>
+      `<div class="hist-task"><span class="t-icon">${x.icon || (x.pts < 0 ? "➖" : "➕")}</span>${zy(x.reason)}
+        <span class="pts" style="color:${x.pts < 0 ? "#C0392B" : "#1E9963"}">${x.pts > 0 ? "+" : ""}${x.pts}</span></div>`).join(""));
+  }
+  if (!list.length && !dayAdj.length) $("#md-list").innerHTML = `<div class="empty" style="padding:14px">這一天沒有紀錄</div>`;
   $("#modal-day").classList.remove("hidden");
 }
 
@@ -1146,12 +1283,13 @@ let pView = "assign", libType = "basic", libSel = new Set();
 let assignSel = new Set([todayStr()]);
 let assignAll = false;
 function renderParent() {
-  ["assign", "approve", "rewards", "settings"].forEach(v => $("#pv-" + v).classList.toggle("hidden", v !== pView));
+  ["assign", "approve", "adjust", "rewards", "settings"].forEach(v => $("#pv-" + v).classList.toggle("hidden", v !== pView));
   $$(".parent-tabs button").forEach(b => b.classList.toggle("on", b.dataset.pv === pView));
   const pend = S.children.reduce((a, c) => a + pendingCount(c.id), 0);
   $("#approve-dot").classList.toggle("hidden", !pend);
   if (pView === "assign") renderAssign();
   if (pView === "approve") renderApprove();
+  if (pView === "adjust") renderAdjust();
   if (pView === "rewards") renderRewards();
   if (pView === "settings") renderSettings();
 }
@@ -1439,7 +1577,19 @@ const MANUAL = {
         <li>有多個小孩時，所有人的待審核會集中在這一頁，每張卡片標示是誰的，不用切換。</li>
       </ul>
       <div class="note"><b>💡</b><span>覺得每次都要審很麻煩？到<b>設定 → 完成免審核</b>打開，小孩打勾就直接入點。適合已經建立信任、或年紀較大的孩子。</span></div>`),
-    SEC(4, "獎品與發獎", `
+    SEC(4, "加扣點", `
+      <p>任務以外的臨時狀況，可以直接加減點數。這一頁分「➖ 扣點」與「➕ 加點」兩邊。</p>
+      ${SHOT("manual-parent-adjust.webp", "加扣點：上方是對象與目前點數，中間是項目庫，點右邊的數字就執行")}
+      <ul>
+        <li><b>點項目右邊的數字就執行</b>，會先跳確認視窗讓你看清楚事由與點數，不會手滑就扣掉。</li>
+        <li><b>項目庫可以自己改</b>：預設有六個扣點、四個加點項目，都能編輯、刪除或新增。</li>
+        <li><b>單次加扣</b>：這次特別的狀況不必存進項目庫，按「✍️ 這次特別的」直接寫事由。</li>
+        <li><b>撤銷</b>：最下方「最近的調整紀錄」每一筆都能撤銷，點數會還原。按錯不用怕。</li>
+        <li><b>扣不到負數</b>：孩子只有 3 點時你扣 10 點，只會扣到 0，確認視窗會先告訴你。</li>
+      </ul>
+      <div class="note"><b>💡</b><span><b>事由要寫清楚</b>，因為孩子在「紀錄 → 明細」會看到一模一樣的文字。寫「態度不好」他不知道要改什麼，寫「說好九點睡卻拖到十點」就明確多了。</span></div>
+      <div class="note warn"><b>⚠️</b><span>扣點請節制。行為研究上這叫 <b>response cost</b>——偶爾用有效，一旦變成常態，孩子會覺得「反正努力也會被扣掉」而整個放棄集點。<b>加點通常比扣點有效</b>，優先用加點鼓勵你想看到的行為。</span></div>`),
+    SEC(5, "獎品與發獎", `
       <p>獎品由你設定要幾點才能換。小孩換了之後會進到「待核銷」，等你實際給獎品後按「發獎核銷」。</p>
       ${SHOT("manual-parent-rewards.webp", "獎品：上方是獎品庫，下方是待核銷與已核銷紀錄")}
       <ul>
@@ -1447,7 +1597,7 @@ const MANUAL = {
         <li>「發獎核銷」是給你自己記帳用的——避免答應了卻忘記兌現。</li>
         <li>建議由低到高排：15 點的小獎（看卡通）讓孩子很快嘗到甜頭，120 點的大獎（玩具）撐起長期目標。</li>
       </ul>`),
-    SEC(5, "設定與備份", `
+    SEC(6, "設定與備份", `
       <p>小孩管理、注音開關、密碼、備份都在這裡。</p>
       ${SHOT("manual-parent-settings.webp", "設定：小孩管理、各項開關、資料備份")}
       <ul>
@@ -1485,11 +1635,18 @@ const MANUAL = {
         <li>換完要<b>拿給家長按「發獎」</b>才算真的領到，下方紀錄可以看狀態。</li>
       </ul>`),
     SEC(4, "看自己的紀錄", `
-      <p>「📅 紀錄」是一整個月的月曆，哪天拿了幾點一目了然。</p>
-      ${SHOT("manual-kid-history.webp", "月曆：有點數的日子會標記，可以點開看細節")}
+      <p>「📅 紀錄」有兩種看法：<b>月曆</b>看整個月，<b>明細</b>看每一筆點數的來龍去脈。</p>
+      ${SHOT("manual-kid-history.webp", "月曆：有點數的日子會標記，被扣點的日子顯示紅色數字")}
       <ul>
         <li>有做任務的日子會顯示 <b>+點數</b>，點下去可以看那天做了什麼。</li>
+        <li>那天被扣點的話會顯示<b>紅色的 −點數</b>，點開看得到原因。</li>
         <li>上方箭頭可以往前往後翻月份，最下面是這個月的總點數。</li>
+      </ul>
+      ${SHOT("manual-kid-ledger.webp", "明細：完成任務、兌換獎品、家長加扣點全部在同一條時間軸")}
+      <ul>
+        <li>明細把<b>三種點數變動放在一起</b>：完成任務 +、兌換獎品 −、家長調整 ±。</li>
+        <li>金幣為什麼是這個數字，在這裡一筆一筆看得到，不會不明不白。</li>
+        <li>家長有新的加扣點時，下方「紀錄」上會出現<b>紅色數字</b>，看過明細就會消失。</li>
       </ul>`),
     SEC(5, "換人玩", `
       <p>有兩個以上的小孩時，點左上角的頭像就能換人。</p>
@@ -1516,6 +1673,10 @@ const MANUAL = {
      "<b>iPhone / iPad</b>：一定要用 Safari 開網址，按下方「分享」→「加入主畫面」。<b>Android</b>：到家長模式 → 設定按「立即安裝」，或用瀏覽器選單的「安裝應用程式」。裝好後有獨立圖示、全螢幕，<b>沒網路也能開</b>。"],
     ["任務點數改了，之前完成的會被改掉嗎？",
      "不會。改任務庫只會影響<b>今天以後、還沒完成</b>的任務；已完成和送審中的點數是凍結的，孩子已經賺到的不會被追溯調整。"],
+    ["家長可以扣點嗎？孩子看得到原因嗎？",
+     "可以。<b>家長模式 → 加扣點</b>，選項目或自己寫事由。孩子在<b>紀錄 → 明細</b>會看到一模一樣的事由，所以請寫清楚具體行為，不要只寫「態度不好」。扣點<b>最多扣到 0</b>，不會變成負數。每一筆都能撤銷。"],
+    ["扣點會不會讓孩子更不想做？",
+     "會，如果用太兇。行為研究把這叫 <b>response cost</b>：偶爾使用有嚇阻效果，但變成常態之後，孩子會覺得「反正努力也會被扣掉」而放棄整套制度。建議<b>優先用加點</b>鼓勵你想看到的行為，扣點留給真正嚴重的狀況，而且事後要讓孩子有機會賺回來。"],
     ["注音的讀音是依什麼標準？",
      "教育部《重編國語辭典修訂本》。例如「垃圾」是 ㄌㄜˋ ㄙㄜˋ，不是大陸讀音的 ㄌㄚ ㄐㄧ。如果發現哪個字讀音不對，請用<b>意見回饋</b>告訴我。"],
   ],
@@ -1626,6 +1787,142 @@ async function flushFeedbackQueue() {
   if (rest.length !== S.fbQueue.length) { S.fbQueue = rest; save(); }
 }
 
+/* ---------- 加扣點 ---------- */
+let adjKind = "minus";
+
+/* 扣點最多扣到 0，不讓點數變負數：
+   對小孩來說「欠債」只會讓人放棄，而且商店的進度條也會失去意義。
+   實際套用的點數會如實記在紀錄裡，家長在確認視窗就會看到會被打折。 */
+function applyAdjust(cid, pts, reason, icon) {
+  let p = pts;
+  if (p < 0) {
+    const bal = balance(cid);
+    if (bal <= 0) return { ok: false, msg: "目前是 0 點，沒有點數可以扣" };
+    if (-p > bal) p = -bal;
+  }
+  ADJ(cid).push({ id: uid(), date: todayStr(), pts: p, reason, icon, seen: false });
+  save();
+  return { ok: true, applied: p };
+}
+
+function renderAdjust() {
+  const multi = S.children.length > 1, c = kid();
+  $("#adjust-who").classList.toggle("hidden", !multi);
+  if (multi) {
+    $("#adjust-bar").innerHTML = S.children.map(x =>
+      `<button class="cchip ${x.id === S.activeId ? "on" : ""}" data-adjchip="${x.id}">
+        <span class="av">${avatarHTML(x.avatar)}</span>${x.name} · ${balance(x.id)}</button>`).join("");
+  }
+  if (!c) return;
+  $("#adj-av").innerHTML = avatarHTML(c.avatar);
+  $("#adj-balance").textContent = balance(c.id);
+  $("#adj-name").textContent = `${c.name} 目前點數`;
+  $$(".seg-toggle [data-adjkind]").forEach(b => b.classList.toggle("on", b.dataset.adjkind === adjKind));
+
+  const items = S.adjItems.filter(x => x.kind === adjKind);
+  $("#adj-list").innerHTML = items.map(x =>
+    `<div class="adj-item">
+      <span class="t-icon">${x.icon}</span><span class="nm">${x.name}</span>
+      <button class="edt" data-editadj="${x.id}">編輯</button>
+      <button class="del" data-deladj="${x.id}">刪除</button>
+      <button class="go ${x.kind}" data-doadj="${x.id}">${x.kind === "minus" ? "−" : "+"}${x.pts}</button>
+    </div>`).join("") || `<div class="empty" style="padding:16px">這個分類還沒有項目</div>`;
+
+  const log = [...ADJ(c.id)].reverse().slice(0, 12);
+  $("#adj-log").innerHTML = log.length ? log.map(x =>
+    `<div class="log-row">
+      <span class="ic">${x.icon || (x.pts < 0 ? "➖" : "➕")}</span>
+      <div class="bd"><b>${x.reason}</b><small>${fmtDate(x.date)}</small></div>
+      <span class="amt ${x.pts < 0 ? "down" : "up"}">${x.pts > 0 ? "+" : ""}${x.pts}</span>
+      <button class="undo" data-undoadj="${x.id}">撤銷</button>
+    </div>`).join("") : `<div class="empty" style="padding:16px">還沒有任何加扣點紀錄</div>`;
+}
+
+/* 執行前先確認：把事由、點數、以及會不會被打折都攤開來給家長看 */
+function askAdjust(kind, reason, icon, pts) {
+  const c = kid(); if (!c) return;
+  const bal = balance(c.id);
+  const minus = kind === "minus";
+  let note = "";
+  if (minus) {
+    if (bal <= 0) return toast(`${c.name} 目前是 0 點，沒有點數可以扣`);
+    if (pts > bal) note = `${c.name} 目前只有 ${bal} 點，實際只會扣 ${bal} 點。`;
+  }
+  openConfirm(icon || (minus ? "➖" : "➕"),
+    `${minus ? "扣" : "加"} ${c.name} ${Math.min(pts, minus ? bal : pts)} 點？`,
+    `事由：${reason}${note ? "\n" + note : ""}`,
+    () => {
+      const r = applyAdjust(c.id, minus ? -pts : pts, reason, icon);
+      if (!r.ok) return toast(r.msg);
+      toast(`${minus ? "已扣" : "已加"} ${Math.abs(r.applied)} 點`);
+      if (!minus) confetti();
+      renderAdjust();
+    });
+}
+
+let editAdjId = null, maIcon = ADJ_ICONS[0];
+function openAdjItemModal(id) {
+  const x = id ? S.adjItems.find(i => i.id === id) : null;
+  editAdjId = x ? id : null;
+  $("#ma-title").textContent = x ? "✏️ 編輯項目" : "＋ 自訂項目";
+  $("#ma-save").textContent = x ? "儲存修改" : "存進項目庫";
+  $("#ma-name").value = x ? x.name : "";
+  $("#ma-pts").value = x ? x.pts : 5;
+  $("#ma-kind").value = x ? x.kind : adjKind;
+  maIcon = x ? x.icon : ADJ_ICONS[0];
+  const set = maIcon && !ADJ_ICONS.includes(maIcon) ? [maIcon, ...ADJ_ICONS] : ADJ_ICONS;
+  iconGrid($("#ma-icons"), set, maIcon, i => maIcon = i);
+  $("#modal-adjitem").classList.remove("hidden");
+}
+
+function openCustomAdjust() {
+  const c = kid(); if (!c) return;
+  const minus = adjKind === "minus";
+  $("#mj-title").textContent = minus ? "➖ 單次扣點" : "➕ 單次加點";
+  $("#mj-reason").value = ""; $("#mj-pts").value = 5;
+  $("#mj-note").textContent = `${c.name} 目前 ${balance(c.id)} 點。這筆不會存進項目庫。`;
+  $("#modal-adjust").classList.remove("hidden");
+  setTimeout(() => $("#mj-reason").focus(), 120);
+}
+
+/* ---------- 小孩端：點數明細 ---------- */
+function ledgerEntries(cid) {
+  const out = [];
+  Object.entries(D(cid)).forEach(([ds, list]) => list.forEach(t => {
+    if (t.status === "done") out.push({ date: ds, pts: t.pts, icon: t.icon, text: t.name, kind: "task" });
+  }));
+  R(cid).forEach(r => out.push({ date: r.date, pts: -r.pts, icon: r.icon, text: `兌換「${r.name}」`, kind: "redeem" }));
+  ADJ(cid).forEach(x => out.push({ date: x.date, pts: x.pts, icon: x.icon || (x.pts < 0 ? "➖" : "➕"), text: x.reason, kind: "adjust" }));
+  return out.sort((a, b) => b.date.localeCompare(a.date));
+}
+function renderLedger() {
+  const rows = ledgerEntries();
+  if (!rows.length) {
+    $("#hv-log").innerHTML = `<div class="empty"><span class="big">🧾</span>還沒有任何點數紀錄</div>`;
+    return;
+  }
+  let html = "", cur = "";
+  rows.forEach(r => {
+    if (r.date !== cur) { cur = r.date; html += `<div class="ledger-date">${fmtDate(cur)}</div>`; }
+    html += `<div class="log-row">
+      <span class="ic">${r.icon}</span>
+      <div class="bd"><b>${zy(r.text)}</b><small>${r.kind === "task" ? "完成任務" : r.kind === "redeem" ? "兌換獎品" : "家長調整"}</small></div>
+      <span class="amt ${r.pts < 0 ? "down" : "up"}">${r.pts > 0 ? "+" : ""}${r.pts}</span>
+    </div>`;
+  });
+  $("#hv-log").innerHTML = html;
+  // 看過就標記已讀，紀錄分頁上的紅點跟著消失
+  let touched = false;
+  ADJ().forEach(x => { if (!x.seen) { x.seen = true; touched = true; } });
+  if (touched) { save(); refreshLogBadge(); }
+}
+function refreshLogBadge() {
+  const n = S.children.length ? unseenAdj() : 0;
+  const el = $("#log-badge");
+  el.textContent = n;
+  el.classList.toggle("hidden", !n);
+}
+
 /* ---------- 事件綁定 ---------- */
 function bind() {
   // 小孩端
@@ -1678,6 +1975,27 @@ function bind() {
     if (er) return openRewardModal(er.dataset.editreward);
     const un = e.target.closest("[data-unassign]");
     if (un) { const days = D(), ds = un.dataset.uds; days[ds] = (days[ds] || []).filter(t => t.id !== un.dataset.unassign); if (!days[ds].length) delete days[ds]; save(); return renderAssign(); }
+    const ac = e.target.closest("[data-adjchip]");
+    if (ac) { switchTo(ac.dataset.adjchip); return renderAdjust(); }
+    const da = e.target.closest("[data-doadj]");
+    if (da) { const x = S.adjItems.find(i => i.id === da.dataset.doadj); if (x) askAdjust(x.kind, x.name, x.icon, x.pts); return; }
+    const ea = e.target.closest("[data-editadj]");
+    if (ea) return openAdjItemModal(ea.dataset.editadj);
+    const dla = e.target.closest("[data-deladj]");
+    if (dla) {
+      const id = dla.dataset.deladj, x = S.adjItems.find(i => i.id === id);
+      const doDel = () => { S.adjItems = S.adjItems.filter(i => i.id !== id); save(); renderAdjust(); toast("已從項目庫移除"); };
+      return x && !x.custom ? openConfirm("🗑️", `刪除「${x.name}」？`, "這是預設項目，刪除後可在設定頁「還原預設」找回。", doDel) : doDel();
+    }
+    const ua = e.target.closest("[data-undoadj]");
+    if (ua) {
+      const id = ua.dataset.undoadj, c = kid();
+      const x = ADJ(c.id).find(i => i.id === id); if (!x) return;
+      return openConfirm("↩️", "撤銷這筆調整？", `「${x.reason}」${x.pts > 0 ? "+" : ""}${x.pts} 點會被移除，點數還原。`, () => {
+        S.data[c.id].adjustments = ADJ(c.id).filter(i => i.id !== id);
+        save(); renderAdjust(); toast("已撤銷");
+      });
+    }
     const ap = e.target.closest("[data-approve]");
     if (ap) { const f = findTask(ap.dataset.approve); if (f) { f.t.status = "done"; save(); toast(`已核准，${f.c.name} 獲得 ${f.t.pts} 點`); } return renderParent(); }
     const rj = e.target.closest("[data-reject]");
@@ -1785,6 +2103,30 @@ function bind() {
   $("#fb-text").oninput = e => { $("#fb-count").textContent = `${e.target.value.length} / 1000`; };
   $("#fb-send").onclick = sendFeedback;
 
+  // 加扣點
+  $$("#pv-adjust .seg-toggle [data-adjkind]").forEach(b => b.onclick = () => { adjKind = b.dataset.adjkind; renderAdjust(); });
+  $("#btn-new-adjitem").onclick = () => openAdjItemModal();
+  $("#btn-adj-custom").onclick = openCustomAdjust;
+  $("#ma-save").onclick = () => {
+    const name = $("#ma-name").value.trim(); if (!name) return toast("請填事由");
+    const pts = Math.max(1, +$("#ma-pts").value || 1), kindV = $("#ma-kind").value;
+    if (editAdjId) {
+      const x = S.adjItems.find(i => i.id === editAdjId);
+      if (x) Object.assign(x, { name, icon: maIcon, pts, kind: kindV });
+      toast("項目已更新");
+    } else { S.adjItems.push({ id: uid(), name, icon: maIcon, pts, kind: kindV, custom: true }); toast("已存進項目庫"); }
+    editAdjId = null; save(); $("#modal-adjitem").classList.add("hidden"); adjKind = kindV; renderAdjust();
+  };
+  $("#mj-ok").onclick = () => {
+    const reason = $("#mj-reason").value.trim(); if (!reason) return toast("請寫事由，小孩要看得懂為什麼");
+    const pts = Math.max(1, +$("#mj-pts").value || 1);
+    $("#modal-adjust").classList.add("hidden");
+    askAdjust(adjKind, reason, adjKind === "minus" ? "➖" : "➕", pts);
+  };
+
+  // 小孩端：月曆 / 明細切換
+  $$("#kv-history .seg-toggle [data-hv]").forEach(b => b.onclick = () => { histView = b.dataset.hv; renderKid(); });
+
   // 範例資料 / 備份 / 安裝
   $("#su-demo").onclick = () => { seedDemo(); show("kid"); renderKid(); confetti(); toast("已載入範例資料，隨時可在設定清除"); };
   $("#btn-export").onclick = exportBackup;
@@ -1806,11 +2148,12 @@ function bind() {
     if (!/^\d{4}$/.test(p)) return toast("密碼需為 4 位數字");
     S.pin = p; save(); $("#set-pin").value = ""; toast("密碼已更新");
   };
-  $("#btn-restore-presets").onclick = () => openConfirm("↺", "還原預設任務與獎品？", "預設項目會回到出廠名稱與點數；你自訂的任務、獎品與已指派/已完成紀錄都會保留。", () => {
+  $("#btn-restore-presets").onclick = () => openConfirm("↺", "還原預設項目？", "預設任務、獎品與加扣點項目會回到出廠名稱與點數；你自訂的項目與已指派/已完成紀錄都會保留。", () => {
     const custom = S.tasks.filter(t => t.custom);
     S.tasks = [...deep(PRESET_TASKS), ...custom];
     const presetIds = new Set(PRESET_REWARDS.map(r => r.id));
     S.rewards = [...deep(PRESET_REWARDS), ...S.rewards.filter(r => !presetIds.has(r.id))];
+    S.adjItems = [...deep(PRESET_ADJUSTMENTS), ...S.adjItems.filter(x => x.custom)];
     save(); renderParent(); toast("已還原預設項目");
   });
   $("#btn-reset").onclick = () => openConfirm("⚠️", "清除所有資料？", "所有小孩、任務、點數、兌換紀錄都會消失，回到初始設定畫面。", () => {
