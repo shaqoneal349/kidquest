@@ -350,6 +350,44 @@ input,select,textarea{font-family:inherit;font-size:16px;color:var(--ink)}
   font-size:10px;border-radius:99px;padding:1px 5px;font-weight:900;transform:none}
 .ledger-date{font-size:12.5px;font-weight:800;color:var(--ink2);margin:14px 4px 8px}
 .ledger-date:first-child{margin-top:0}
+
+/* ===== 固定任務（重複排程） ===== */
+.wk-row{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin:6px 0 4px}
+.wk{aspect-ratio:1;border-radius:12px;background:#fff;border:2px solid var(--line);font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.wk.on{border-color:var(--primary);background:#EAF0FF;color:var(--primary-d)}
+.sel-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px}
+.sel-chips span{display:inline-flex;align-items:center;gap:4px;background:#F1F4FA;border-radius:999px;padding:5px 11px;font-size:13px;font-weight:700}
+.kid-check{display:flex;align-items:center;gap:9px;padding:8px 2px;font-size:14.5px;font-weight:700}
+.recur-item{display:flex;align-items:center;gap:10px;background:#fff;border-radius:var(--r-sm);padding:10px 12px;margin-bottom:8px;box-shadow:var(--shadow)}
+.recur-item.paused{opacity:.55}
+.recur-item .t-icon{font-size:22px;width:30px;text-align:center;flex-shrink:0}
+.recur-item .bd{flex:1;min-width:0}
+.recur-item .bd b{font-size:14.5px;display:block;line-height:1.5}
+.recur-item .bd small{font-size:12px;color:var(--ink2)}
+.recur-item button{font-size:12.5px;font-weight:700;padding:5px 8px;flex-shrink:0}
+.recur-item .pz{color:var(--primary)}
+.recur-item .del{color:#C9536B}
+.tag-recur{display:inline-block;font-size:11px;font-weight:800;color:var(--primary-d);background:#EAF0FF;border-radius:99px;padding:1px 7px;margin-left:4px;vertical-align:middle}
+
+/* ===== 角色等級 ===== */
+.lv-bar{margin:6px 16px 0;background:#fff;border-radius:16px;padding:9px 12px 10px;box-shadow:var(--shadow)}
+.lv-bar .row{display:flex;align-items:center;justify-content:space-between;font-size:12.5px;font-weight:800;color:var(--ink2)}
+.lv-bar .row b{color:var(--ink);font-size:13.5px}
+.lv-bar .track{height:9px;background:var(--line);border-radius:99px;margin-top:6px;overflow:hidden}
+.lv-bar .track i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#8FA8FF,var(--primary));transition:width .5s}
+.lv-bar .max{color:var(--coin-d)}
+.reward.locked{opacity:.75}
+.reward .lock{display:inline-flex;align-items:center;gap:4px;background:#EEF1F7;color:var(--ink2);border-radius:999px;padding:5px 11px;font-size:12.5px;font-weight:800;white-space:nowrap}
+#modal-levelup .modal{text-align:center;background:linear-gradient(180deg,#FFF9E6,#fff)}
+.lvup-icon{font-size:88px;line-height:1.1;animation:pop .5s;filter:drop-shadow(0 8px 14px rgba(255,179,0,.35))}
+.lvup-tag{display:inline-block;background:var(--coin);color:#5C3D00;border-radius:999px;padding:4px 14px;font-weight:900;font-size:14px;margin:10px 0 4px}
+.lvup-name{font-size:24px;font-weight:900;margin:2px 0 6px}
+.lv-row{display:flex;align-items:center;gap:10px;background:#fff;border-radius:var(--r-sm);padding:9px 12px;margin-bottom:7px;box-shadow:var(--shadow)}
+.lv-row .ic{font-size:24px;width:30px;text-align:center;flex-shrink:0}
+.lv-row .bd{flex:1;min-width:0;font-size:14px;font-weight:700}
+.lv-row .bd small{display:block;font-size:12px;color:var(--ink2);font-weight:700}
+.lv-row .edt{color:var(--primary);font-size:13px;font-weight:700;padding:4px 8px;flex-shrink:0}
+.lv-row .who{margin:0 0 0 4px}
 </style>
 </head>
 <body>
@@ -448,6 +486,7 @@ input,select,textarea{font-family:inherit;font-size:16px;color:var(--ink)}
       </button>
       <button class="lock-btn" id="btn-lock" title="家長模式">🔒</button>
     </div>
+    <div class="lv-bar" id="lv-bar"></div>
     <div class="coin-hero">
       <div class="coin-row">
         <span class="coin-icon" id="coin-icon">🪙</span>
@@ -535,7 +574,12 @@ input,select,textarea{font-family:inherit;font-size:16px;color:var(--ink)}
           <button class="btn btn-ghost btn-sm btn-block" id="btn-new-task" style="margin-top:6px">＋ 自訂新任務</button>
           <div class="chk-row hidden" id="assign-all-row"><span class="chk" id="assign-all-chk">✓</span>同時指派給所有小孩</div>
         </div>
-        <button class="btn btn-primary btn-block" id="btn-assign">指派勾選的任務</button>
+        <div class="btn-row">
+          <button class="btn btn-primary" id="btn-assign">指派勾選的任務</button>
+          <button class="btn btn-ghost" id="btn-recur">🔁 設成固定</button>
+        </div>
+        <div class="section-title">🔁 固定任務（每週自動鋪，不用手動指派）</div>
+        <div id="recur-list"></div>
         <div class="section-title" id="assigned-title">已指派清單（依所選日期）</div>
         <div id="assigned-list"></div>
       </div>
@@ -601,6 +645,16 @@ input,select,textarea{font-family:inherit;font-size:16px;color:var(--ink)}
           </div>
           <div id="child-manage"></div>
           <button class="btn btn-ghost btn-sm btn-block" id="btn-add-child" style="margin-top:6px">＋ 新增小孩</button>
+        </div>
+        <div class="card">
+          <div class="field" style="margin-bottom:10px"><label>🏆 角色等級</label>
+            <div style="font-size:12.5px;color:var(--ink2)">累計獲得的點數到門檻就升級。<b>等級只看「累計獲得」，換獎品或被扣點都不會降級</b>。名稱、圖示、門檻都可以改。</div>
+          </div>
+          <div id="level-list"></div>
+          <div class="btn-row" style="margin-top:8px">
+            <button class="btn btn-ghost btn-sm" id="btn-lv-recalc">依任務庫重算門檻</button>
+            <button class="btn btn-ghost btn-sm" id="btn-lv-reset">還原預設角色</button>
+          </div>
         </div>
         <div class="card">
           <div class="switch-row" style="margin-bottom:10px">
@@ -717,6 +771,50 @@ input,select,textarea{font-family:inherit;font-size:16px;color:var(--ink)}
     </div>
   </div>
 
+  <div id="modal-levelup" class="modal-mask hidden">
+    <div class="modal">
+      <div class="lvup-icon" id="lu-icon">🐣</div>
+      <div class="lvup-tag" id="lu-tag">LV 2</div>
+      <div class="lvup-name" id="lu-name"></div>
+      <p style="font-size:14.5px;color:var(--ink2);line-height:1.8;margin-bottom:16px" id="lu-text"></p>
+      <button class="btn btn-primary btn-block" id="lu-ok">太棒了！</button>
+    </div>
+  </div>
+
+  <div id="modal-level" class="modal-mask hidden">
+    <div class="modal">
+      <h3 id="ml-title">✏️ 編輯角色</h3>
+      <div class="field"><label>角色名稱</label><input type="text" id="ml-name" maxlength="12"></div>
+      <div class="field"><label>圖示</label><div class="icon-grid" id="ml-icons"></div></div>
+      <div class="field"><label>升級門檻（累計獲得點數）</label><input type="number" id="ml-pts" min="0" max="99999"></div>
+      <div class="hint" id="ml-note" style="margin-top:0"></div>
+      <div style="display:flex;gap:10px;margin-top:14px">
+        <button class="btn btn-ghost" style="flex:1" data-close>取消</button>
+        <button class="btn btn-primary" style="flex:1" id="ml-save">儲存</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-recur" class="modal-mask hidden">
+    <div class="modal">
+      <h3>🔁 設成固定任務</h3>
+      <p style="font-size:13.5px;color:var(--ink2);line-height:1.8;margin-bottom:12px">
+        之後每週這幾天會自動出現在小孩的任務清單，不用再一天一天指派。</p>
+      <div class="field"><label>任務</label><div class="sel-chips" id="mrc-tasks"></div></div>
+      <div class="field"><label>每週哪幾天</label>
+        <div class="quick-row">
+          <button data-wq="all">每天</button><button data-wq="wd">平日</button><button data-wq="we">週末</button>
+        </div>
+        <div class="wk-row" id="mrc-days"></div>
+      </div>
+      <div class="field hidden" id="mrc-kids-wrap"><label>給誰</label><div id="mrc-kids"></div></div>
+      <div style="display:flex;gap:10px;margin-top:6px">
+        <button class="btn btn-ghost" style="flex:1" data-close>取消</button>
+        <button class="btn btn-primary" style="flex:1" id="mrc-save">建立固定任務</button>
+      </div>
+    </div>
+  </div>
+
   <div id="modal-adjitem" class="modal-mask hidden">
     <div class="modal">
       <h3 id="ma-title">＋ 自訂項目</h3>
@@ -769,6 +867,7 @@ input,select,textarea{font-family:inherit;font-size:16px;color:var(--ink)}
       <div class="field"><label>獎品名稱</label><input type="text" id="mr-name" maxlength="20" placeholder="例如：去公園野餐"></div>
       <div class="field"><label>選個圖示</label><div class="icon-grid" id="mr-icons"></div></div>
       <div class="field"><label>所需點數</label><input type="number" id="mr-pts" min="1" max="9999" value="30"></div>
+      <div class="field"><label>解鎖等級（升到這一級才能換）</label><select id="mr-lv"></select></div>
       <div style="display:flex;gap:10px">
         <button class="btn btn-ghost" style="flex:1" data-close>取消</button>
         <button class="btn btn-primary" style="flex:1" id="mr-save">新增</button>
@@ -802,7 +901,7 @@ input,select,textarea{font-family:inherit;font-size:16px;color:var(--ink)}
 /* 小小任務家 KidQuest v3.3.1 — 多小孩切換 + PWA（可安裝／離線）+ 備份匯出匯入
    注音字典 ZY_CHAR / ZY_PHRASE 由 zhuyin-data.js 提供（需先於本檔載入） */
 "use strict";
-const APP_VER = "3.6.0";
+const APP_VER = "3.8.0";
 /* 意見回饋收集端點（Google Apps Script 網頁應用程式 /exec 網址）。
    留空時：回饋不會遺失，會存在本機佇列，設定好網址後下次開啟自動補送。
    設定方式見 feedback-apps-script.gs 檔頭與 README-部署.md 第七節。 */
@@ -852,6 +951,16 @@ const PRESET_ADJUSTMENTS = [
   { id: "g3", name: "友愛弟弟妹妹", icon: "💝", pts: 5, kind: "plus" },
   { id: "g4", name: "被稱讚有禮貌", icon: "😊", pts: 5, kind: "plus" },
 ];
+/* 角色進化鏈：10 級。門檻依各家任務點數尺度在第一次使用時計算一次（見 calibrateLevels）。 */
+const PRESET_LEVELS = [
+  { icon: "🥚", name: "任務蛋" }, { icon: "🐣", name: "破殼新手" }, { icon: "🐥", name: "小小幫手" },
+  { icon: "🐤", name: "勤勞小雞" }, { icon: "🦆", name: "家事達人" }, { icon: "🦉", name: "智慧貓頭鷹" },
+  { icon: "🦅", name: "天空之鷹" }, { icon: "🦄", name: "傳說獨角獸" }, { icon: "🐉", name: "任務飛龍" },
+  { icon: "👑", name: "任務之王" },
+];
+/* 各級門檻以「典型每日獲得點數 × 天數」計算：下一級永遠在 1～3 週內，避免目標太遠而放棄 */
+const LEVEL_DAYS = [0, 3, 7, 14, 25, 40, 60, 85, 115, 150];
+const LEVEL_ICONS = ["🥚", "🐣", "🐥", "🐤", "🦆", "🦉", "🦅", "🦄", "🐉", "👑", "🐛", "🦋", "🐟", "🐬", "🐳", "🌱", "🌿", "🌳", "⭐", "🌟", "💎", "🚀", "🦖", "🦁"];
 const ADJ_ICONS = ["😤", "🤥", "✋", "🧺", "📺", "⏰", "🙉", "🍬", "😴", "🚫", "💢", "🧦",
   "🤝", "🙇", "💝", "😊", "🌟", "📚", "🫶", "🧹", "🎯", "💪"];
 const AVATARS = ["🦖", "🐱", "🦄", "🚀", "🐼", "🍓", "🐧", "🦊"];
@@ -906,6 +1015,8 @@ function defaultState() {
     tasks: deep(PRESET_TASKS),
     rewards: deep(PRESET_REWARDS),
     adjItems: deep(PRESET_ADJUSTMENTS),
+    recurring: [],   // 固定任務規則 {id, tid, days:[0-6], childIds:[], paused}
+    levels: null,    // 角色等級 [{pts, icon, name}] ×10，migrate 時依任務庫計算
     data: {},
   };
 }
@@ -929,6 +1040,9 @@ function migrate() {
   S.children.forEach(c => { if (!S.data[c.id]) S.data[c.id] = { days: {}, redemptions: [] }; });
   if (!Array.isArray(S.adjItems)) S.adjItems = deep(PRESET_ADJUSTMENTS);
   Object.values(S.data).forEach(b => { if (!Array.isArray(b.adjustments)) b.adjustments = []; });
+  if (!Array.isArray(S.recurring)) S.recurring = [];
+  if (!Array.isArray(S.levels) || S.levels.length !== 10) S.levels = buildLevels(calibrateLevels());
+  S.children.forEach(c => { const b = bucket(c.id); if (typeof b.lvSeen !== "number") b.lvSeen = 1; });
   Object.keys(S.data).forEach(id => { if (!S.children.some(c => c.id === id)) delete S.data[id]; });
   if (!S.activeId || !S.children.some(c => c.id === S.activeId)) S.activeId = S.children.length ? S.children[0].id : null;
   if (S.zhuyin === undefined) S.zhuyin = true;
@@ -972,6 +1086,7 @@ const whoTag = c => `<span class="who"><span class="av">${avatarHTML(c.avatar)}<
 /* ---------- Demo 種子資料（兩位小孩，可直接體驗切換） ---------- */
 function seedDemo() {
   S = defaultState();
+  S.introSeen = true;   // 能按到「載入範例」代表已看過介紹
   const A = addChild({ name: "小寶", age: 8, avatar: "🦖" });
   const B = addChild({ name: "小美", age: 6, avatar: "🦄" });
   S.activeId = A;
@@ -984,6 +1099,7 @@ function seedDemo() {
   da[todayStr(1)] = [pick("b4", "todo"), pick("b5", "todo"), pick("b2", "todo")];
   da[todayStr(2)] = [pick("b6", "todo")];
   R(A).push({ id: uid(), name: "看 30 分鐘卡通", icon: "📺", pts: 15, date: todayStr(-1), status: "claimed", claimedDate: todayStr(-1) });
+  const lego = S.rewards.find(r => r.id === "r4"); if (lego) lego.minLevel = 4;   // 展示等級鎖
   ADJ(A).push(
     { id: uid(), date: todayStr(-1), pts: -5, reason: "對家人大吼", icon: "😤", seen: true },
     { id: uid(), date: todayStr(0), pts: 5, reason: "主動幫忙做家事", icon: "🤝", seen: false },
@@ -993,6 +1109,7 @@ function seedDemo() {
   db[todayStr(-1)] = [pick("b2", "done"), pick("b4", "todo"), pick("b8", "done")];
   db[todayStr(0)] = [pick("b2", "todo"), pick("b4", "pending"), pick("b8", "todo")];
   db[todayStr(1)] = [pick("b2", "todo"), pick("b6", "todo")];
+  migrate();   // 建立角色等級門檻、lvSeen 等衍生欄位
   save();
 }
 
@@ -1093,13 +1210,15 @@ function renderKid() {
   if (!c) { show("setup"); initSetup(); return; }
   $("#k-avatar").innerHTML = avatarHTML(c.avatar);
   $("#k-name").textContent = c.name;
-  $("#k-meta").textContent = `${c.age} 歲的任務高手`;
+  { const n = levelOf(c.id), L = levelInfo(n); $("#k-meta").textContent = `${L.icon} LV${n}・${L.name}`; }
+  renderLevelBar();
   $("#k-caret").classList.toggle("hidden", S.children.length < 2);
   $("#coin-num").textContent = balance();
   $("#streak-box").textContent = `🔥 連續達成 ${streak()} 天`;
   ["today", "shop", "history"].forEach(v => $("#kv-" + v).classList.toggle("hidden", v !== kidView));
   $$(".tabbar button").forEach(b => b.classList.toggle("on", b.dataset.kv === kidView));
   refreshLogBadge();
+  checkLevelUp();
   if (kidView === "today") renderToday();
   if (kidView === "shop") renderShop();
   if (kidView === "history") {
@@ -1155,16 +1274,18 @@ function kidComplete(id) {
   renderKid();
 }
 function renderShop() {
-  const bal = balance();
+  const bal = balance(), lv = levelOf();
   $("#shop-list").innerHTML = S.rewards.length ? S.rewards.map(r => {
-    const ok = bal >= r.pts, pct = Math.min(100, Math.round(bal / r.pts * 100));
-    return `<div class="reward">
+    const need = r.minLevel || 1, locked = need > lv;
+    const ok = !locked && bal >= r.pts, pct = Math.min(100, Math.round(bal / r.pts * 100));
+    return `<div class="reward ${locked ? "locked" : ""}">
       <span class="r-icon">${r.icon}</span>
       <div class="r-body"><div class="r-name">${zy(r.name)}</div>
-        ${ok ? `<span class="pill pill-coin">${r.pts} 點</span>`
+        ${locked ? `<span class="pill pill-coin">${r.pts} 點</span> <span class="pill pill-wait">升到 LV${need} ${levelInfo(need).icon} 才能換</span>`
+        : ok ? `<span class="pill pill-coin">${r.pts} 點</span>`
         : `<div class="bar"><i style="width:${pct}%"></i></div><div class="bar-txt">${bal} / ${r.pts} 點 · 還差 ${r.pts - bal} 點，加油！</div>`}
       </div>
-      ${ok ? `<button class="btn btn-mint btn-sm" data-redeem="${r.id}">兌換</button>` : ""}
+      ${locked ? `<span class="lock">🔒 LV${need}</span>` : ok ? `<button class="btn btn-mint btn-sm" data-redeem="${r.id}">兌換</button>` : ""}
     </div>`;
   }).join("") : `<div class="empty"><span class="big">🎪</span>還沒有獎品，請家長設定！</div>`;
   const reds = [...R()].sort((a, b) => b.date.localeCompare(a.date));
@@ -1176,6 +1297,7 @@ function renderShop() {
 }
 function askRedeem(rid) {
   const r = S.rewards.find(x => x.id === rid); if (!r) return;
+  if ((r.minLevel || 1) > levelOf()) return toast(`要升到 LV${r.minLevel} 才能換這個喔`);
   openConfirm(r.icon, `兌換「${r.name}」？`, `會用掉 ${r.pts} 點金幣，兌換後拿給家長按「發獎」就可以領獎囉！`, () => {
     R().push({ id: uid(), name: r.name, icon: r.icon, pts: r.pts, date: todayStr(), status: "pending", claimedDate: null });
     save(); confetti(); bounceCoin(); toast("兌換成功！快找家長領獎 🎉"); renderKid();
@@ -1323,11 +1445,12 @@ function renderAssign() {
   $("#assigned-title").textContent = c ? `已指派清單（${c.name}．依所選日期）` : "已指派清單";
   if (!c) { $("#assigned-list").innerHTML = `<div class="empty">請先到「設定」新增小孩</div>`; return; }
   const dates = (assignSel.size ? [...assignSel] : [todayStr()]).sort();
+  renderRecurList();
   $("#assigned-list").innerHTML = dates.map(ds => {
     const list = days[ds] || [];
     return `<div class="day-title" style="margin-top:12px"><span>${fmtDate(ds)}</span><span class="sum">${list.length} 項</span></div>` +
       (list.length ? list.map(t =>
-        `<div class="lib-item"><span class="t-icon">${t.icon}</span><span class="nm">${t.name}</span>
+        `<div class="lib-item"><span class="t-icon">${t.icon}</span><span class="nm">${t.name}${t.rid ? `<span class="tag-recur">🔁</span>` : ""}</span>
           <span class="pill ${t.type === "advanced" ? "pill-adv" : "pill-basic"}">${t.pts} 點</span>
           ${t.status === "todo" ? `<button class="del" data-unassign="${t.id}" data-uds="${ds}">移除</button>` : `<span class="pill pill-mint">已${t.status === "done" ? "完成" : "送審"}</span>`}
         </div>`).join("") : `<div class="empty" style="padding:10px">尚未指派任務</div>`);
@@ -1369,7 +1492,7 @@ function findRedemption(id) {
 function renderRewards() {
   const multi = S.children.length > 1;
   $("#pr-reward-list").innerHTML = S.rewards.map(r =>
-    `<div class="lib-item"><span class="t-icon">${r.icon}</span><span class="nm">${r.name}</span>
+    `<div class="lib-item"><span class="t-icon">${r.icon}</span><span class="nm">${r.name}${(r.minLevel || 1) > 1 ? `<span class="tag-recur">🔒 LV${r.minLevel}</span>` : ""}</span>
       <span class="pill pill-coin">${r.pts} 點</span><button class="edt" data-editreward="${r.id}">編輯</button><button class="del" data-delreward="${r.id}">刪除</button></div>`).join("") || `<div class="empty">還沒有獎品</div>`;
   const all = [];
   S.children.forEach(c => R(c.id).forEach(r => all.push({ c, r })));
@@ -1407,6 +1530,7 @@ function renderSettings() {
         ? "用 Safari 開啟後，按下方「分享」→「加入主畫面」，就能像 App 一樣使用。"
         : "在瀏覽器選單找「安裝應用程式 / 加到主畫面」，就能像 App 一樣使用。";
   }
+  renderLevelList();
   refreshStorageNote();
   $("#ver-note").textContent = `小小任務家 v${APP_VER}`;
 }
@@ -1445,6 +1569,8 @@ function openRewardModal(id) {
   $("#mr-title").textContent = r ? "✏️ 編輯獎品" : "＋ 新增獎品";
   $("#mr-save").textContent = r ? "儲存修改" : "新增";
   $("#mr-name").value = r ? r.name : ""; $("#mr-pts").value = r ? r.pts : 30; mrIcon = r ? r.icon : RICON_SET[0];
+  $("#mr-lv").innerHTML = S.levels.map((l, i) => `<option value="${i + 1}">${i === 0 ? "不限（LV1 就能換）" : `LV${i + 1} ${l.icon} ${l.name}`}</option>`).join("");
+  $("#mr-lv").value = r && r.minLevel ? r.minLevel : 1;
   const set = mrIcon && !RICON_SET.includes(mrIcon) ? [mrIcon, ...RICON_SET] : RICON_SET;
   iconGrid($("#mr-icons"), set, mrIcon, i => mrIcon = i);
   $("#modal-reward").classList.remove("hidden");
@@ -1567,7 +1693,15 @@ const MANUAL = {
         <li><b>多個小孩</b>：最上方會出現「出任務給誰」，先選對象再指派。勾「同時指派給所有小孩」可以一次發給全部。</li>
         <li>同一天同一個任務不會重複指派；指派後還沒做的可以按「移除」收回。</li>
       </ul>
-      <div class="note"><b>💡</b><span>改任務庫裡的名稱或點數時，<b>今天以後還沒完成</b>的已指派任務會跟著更新；已完成或送審中的點數會凍結不動，不會事後被改掉。</span></div>`),
+      <div class="note"><b>💡</b><span>改任務庫裡的名稱或點數時，<b>今天以後還沒完成</b>的已指派任務會跟著更新；已完成或送審中的點數會凍結不動，不會事後被改掉。</span></div>
+      ${SHOT("manual-parent-recur.webp", "固定任務：設好之後每週自動出現，不用再手動鋪")}
+      <ul>
+        <li><b>🔁 設成固定</b>：勾好任務後按這顆，選每週哪幾天、給誰，之後就會自動出現在小孩的清單，往後永遠鋪好 14 天。</li>
+        <li>刷牙、寫功課這種每天都要的，設一次就不用再管。</li>
+        <li>已指派清單裡帶 🔁 的就是固定任務產生的。</li>
+        <li><b>暫停</b>：出國、生病時按一下，明天起不再出現；恢復後自動補鋪。</li>
+        <li><b>刪除</b>：明天以後還沒完成的一併移除，今天的與已完成的紀錄不受影響。</li>
+      </ul>`),
     SEC(3, "審核小孩完成的任務", `
       <p>小孩打勾後不會直接入點，會先進到「審核」等你確認。分頁上有紅點就代表有待審核的。</p>
       ${SHOT("manual-parent-approve.webp", "審核：核准後才入點，也可以退回")}
@@ -1597,7 +1731,17 @@ const MANUAL = {
         <li>「發獎核銷」是給你自己記帳用的——避免答應了卻忘記兌現。</li>
         <li>建議由低到高排：15 點的小獎（看卡通）讓孩子很快嘗到甜頭，120 點的大獎（玩具）撐起長期目標。</li>
       </ul>`),
-    SEC(6, "設定與備份", `
+    SEC(6, "角色等級", `
+      <p>累計獲得的點數到門檻就升級，一共 10 級。小孩端名字下方會顯示目前角色與升級進度。</p>
+      ${SHOT("manual-parent-levels.webp", "設定 → 角色等級：10 級的名稱、圖示、門檻都能改")}
+      <ul>
+        <li><b>等級只看「累計獲得」</b>：換獎品、被扣點都<b>不會降級</b>。小孩才敢放心花點數。</li>
+        <li><b>門檻依你的任務點數自動算</b>：第一次使用時依任務庫的點數尺度計算一次（下一級大約 1～3 週內可達），之後不會自己變動。</li>
+        <li>改過任務點數後想重新對齊，按<b>「依任務庫重算門檻」</b>，會先告訴你哪個小孩的等級會變。</li>
+        <li><b>獎品可以設解鎖等級</b>：編輯獎品時選「升到 LV5 才能換」，商店會顯示 🔒。適合把大獎留給高等級，讓等級本身有價值。</li>
+      </ul>
+      <div class="note"><b>💡</b><span>手動調高門檻可能讓小孩<b>降級</b>，系統會先提醒你。除非必要，門檻只調高不調低——降級對小孩的打擊比你想的大。</span></div>`),
+    SEC(7, "設定與備份", `
       <p>小孩管理、注音開關、密碼、備份都在這裡。</p>
       ${SHOT("manual-parent-settings.webp", "設定：小孩管理、各項開關、資料備份")}
       <ul>
@@ -1655,6 +1799,14 @@ const MANUAL = {
         <li>每個人的<b>金幣、任務、兌換紀錄完全分開</b>，不會互相影響。</li>
         <li>如果家長開了「切換小孩需要密碼」，換人時要先輸入家長密碼。</li>
       </ul>`),
+    SEC(6, "角色升級", `
+      <p>累積的點數越多，角色就會進化。從 🥚 任務蛋開始，一路升到 👑 任務之王。</p>
+      ${SHOT("manual-kid-levelup.webp", "升級時會跳出新角色和彩帶")}
+      <ul>
+        <li>名字下方顯示<b>目前角色</b>，旁邊的進度條告訴你<b>還差幾點升級</b>。</li>
+        <li><b>換獎品不會掉等級</b>，被扣點也不會。等級看的是你「總共賺過多少」。</li>
+        <li>有些獎品要<b>升到某一級才能換</b>，商店會顯示 🔒 和需要的等級。</li>
+      </ul>`),
   ],
   faq: [
     ["資料存在哪裡？換手機會不見嗎？",
@@ -1673,6 +1825,12 @@ const MANUAL = {
      "<b>iPhone / iPad</b>：一定要用 Safari 開網址，按下方「分享」→「加入主畫面」。<b>Android</b>：到家長模式 → 設定按「立即安裝」，或用瀏覽器選單的「安裝應用程式」。裝好後有獨立圖示、全螢幕，<b>沒網路也能開</b>。"],
     ["任務點數改了，之前完成的會被改掉嗎？",
      "不會。改任務庫只會影響<b>今天以後、還沒完成</b>的任務；已完成和送審中的點數是凍結的，孩子已經賺到的不會被追溯調整。"],
+    ["每天都要做的任務，一定要每天手動指派嗎？",
+     "不用。勾好任務後按<b>「🔁 設成固定」</b>，選每週哪幾天，之後會自動出現，永遠往後鋪好 14 天。出國或生病可以暫停。"],
+    ["換了獎品，等級會掉嗎？",
+     "不會。等級看的是<b>累計獲得</b>的點數，不是目前餘額。換獎品、被扣點都不影響等級，所以孩子可以放心花點數。只有家長手動調高門檻才可能降級，系統會先提醒。"],
+    ["角色等級的門檻怎麼決定的？可以改嗎？",
+     "第一次使用時依你任務庫的點數尺度自動算一次：LV2 大約 3 天、LV3 一週、LV4 兩週……LV10 約五個月，讓下一級永遠不會太遠。之後不會自己變動；到<b>設定 → 角色等級</b>可以逐級改名稱、圖示、門檻，或按「依任務庫重算」。"],
     ["家長可以扣點嗎？孩子看得到原因嗎？",
      "可以。<b>家長模式 → 加扣點</b>，選項目或自己寫事由。孩子在<b>紀錄 → 明細</b>會看到一模一樣的事由，所以請寫清楚具體行為，不要只寫「態度不好」。扣點<b>最多扣到 0</b>，不會變成負數。每一筆都能撤銷。"],
     ["扣點會不會讓孩子更不想做？",
@@ -1923,6 +2081,202 @@ function refreshLogBadge() {
   el.classList.toggle("hidden", !n);
 }
 
+/* ---------- 固定任務（重複排程） ---------- */
+const RECUR_HORIZON = 14;   // 往後鋪幾天，與出任務的日期格一致
+const WK = "日一二三四五六";
+
+/* 把規則展開成未來 14 天的任務實例。每次開啟 App 與規則變動後都會跑，
+   同一位小孩同一天同一個任務只會有一筆，所以重複執行是安全的。 */
+function materializeRecurring() {
+  let n = 0;
+  const today = todayStr();
+  S.recurring.forEach(rule => {
+    if (rule.paused) return;
+    const t = S.tasks.find(x => x.id === rule.tid); if (!t) return;
+    for (let o = 0; o < RECUR_HORIZON; o++) {
+      const ds = todayStr(o), w = new Date(ds + "T00:00").getDay();
+      if (!rule.days.includes(w)) continue;
+      rule.childIds.forEach(cid => {
+        if (!kidOf(cid)) return;
+        const days = D(cid);
+        days[ds] = days[ds] || [];
+        if (days[ds].some(x => x.tid === t.id)) return;
+        days[ds].push({ ...t, tid: t.id, id: uid(), status: "todo", rid: rule.id }); n++;
+      });
+    }
+  });
+  if (n) save();
+  return n;
+}
+/* 移除某規則產生的、明天以後尚未完成的實例。今天的留著，小孩可能做到一半。 */
+function pruneRecurring(ruleId) {
+  const today = todayStr();
+  Object.values(S.data).forEach(b => {
+    Object.keys(b.days).forEach(ds => {
+      if (ds <= today) return;
+      b.days[ds] = b.days[ds].filter(x => !(x.rid === ruleId && x.status === "todo"));
+      if (!b.days[ds].length) delete b.days[ds];
+    });
+  });
+}
+function daysLabel(days) {
+  const s = [...days].sort().join("");
+  if (s === "0123456") return "每天";
+  if (s === "12345") return "平日";
+  if (s === "06") return "週末";
+  return "每週 " + [...days].sort().map(d => WK[d]).join("、");
+}
+function renderRecurList() {
+  const list = S.recurring;
+  $("#recur-list").innerHTML = list.length ? list.map(r => {
+    const t = S.tasks.find(x => x.id === r.tid);
+    const kids = r.childIds.map(kidOf).filter(Boolean).map(c => c.name).join("、") || "（無對象）";
+    return `<div class="recur-item ${r.paused ? "paused" : ""}">
+      <span class="t-icon">${t ? t.icon : "❓"}</span>
+      <div class="bd"><b>${t ? t.name : "（任務已刪除）"}</b><small>${daysLabel(r.days)}${S.children.length > 1 ? " · " + kids : ""}${r.paused ? " · 已暫停" : ""}</small></div>
+      <button class="pz" data-recurpause="${r.id}">${r.paused ? "恢復" : "暫停"}</button>
+      <button class="del" data-recurdel="${r.id}">刪除</button>
+    </div>`;
+  }).join("") : `<div class="empty" style="padding:12px">還沒有固定任務。勾選任務後按「🔁 設成固定」，之後每週自動出現。</div>`;
+}
+
+let mrcDays = new Set([1, 2, 3, 4, 5]), mrcTaskIds = [];
+function openRecurModal() {
+  if (!S.children.length) return toast("請先到「設定」新增小孩");
+  if (!libSel.size) return toast("先勾選要設成固定的任務");
+  mrcTaskIds = [...libSel];
+  $("#mrc-tasks").innerHTML = mrcTaskIds.map(id => { const t = S.tasks.find(x => x.id === id); return t ? `<span>${t.icon} ${t.name}</span>` : ""; }).join("");
+  mrcDays = new Set([1, 2, 3, 4, 5]);
+  drawRecurDays();
+  const multi = S.children.length > 1;
+  $("#mrc-kids-wrap").classList.toggle("hidden", !multi);
+  if (multi) {
+    $("#mrc-kids").innerHTML = S.children.map(c =>
+      `<label class="kid-check"><span class="chk ${c.id === S.activeId ? "on" : ""}" data-mrckid="${c.id}">✓</span>${avatarHTML(c.avatar).startsWith("<img") ? "" : c.avatar + " "}${c.name}</label>`).join("");
+  }
+  $("#modal-recur").classList.remove("hidden");
+}
+function drawRecurDays() {
+  $("#mrc-days").innerHTML = [0, 1, 2, 3, 4, 5, 6].map(d => `<button class="wk ${mrcDays.has(d) ? "on" : ""}" data-wk="${d}">${WK[d]}</button>`).join("");
+}
+function saveRecur() {
+  if (!mrcDays.size) return toast("至少選一天");
+  const multi = S.children.length > 1;
+  const childIds = multi ? $$("#mrc-kids .chk.on").map(e => e.dataset.mrckid) : [S.activeId];
+  if (!childIds.length) return toast("至少選一位小孩");
+  let made = 0;
+  mrcTaskIds.forEach(tid => {
+    // 同一任務已有規則 → 合併（更新天數與對象），不重複建
+    const existing = S.recurring.find(r => r.tid === tid);
+    if (existing) { existing.days = [...mrcDays]; existing.childIds = [...new Set([...existing.childIds, ...childIds])]; existing.paused = false; }
+    else S.recurring.push({ id: uid(), tid, days: [...mrcDays], childIds, paused: false });
+    made++;
+  });
+  libSel.clear();
+  const n = materializeRecurring(); save();
+  $("#modal-recur").classList.add("hidden");
+  toast(`已設定 ${made} 個固定任務，先鋪好 ${n} 筆 🔁`);
+  renderAssign();
+}
+
+/* ---------- 角色等級（成就系統） ---------- */
+/* 經驗值 = 完成任務獲得 + 家長加點。不扣兌換、不扣扣點 → 等級永遠不會下降。 */
+const xp = cid => earned(cid) + ADJ(cid).filter(x => x.pts > 0).reduce((a, x) => a + x.pts, 0);
+function levelOf(cid) {
+  const v = xp(cid); let n = 1;
+  S.levels.forEach((l, i) => { if (v >= l.pts) n = i + 1; });
+  return n;
+}
+const levelInfo = n => S.levels[Math.max(0, Math.min(9, n - 1))];
+
+/* 門檻校準：以基本任務點數中位數 × 3（假設一天做 3 個）當作典型每日獲得，再乘天數，取 5 的倍數 */
+function calibrateLevels(tasks) {
+  const basics = (tasks || S.tasks).filter(t => t.type === "basic").map(t => +t.pts || 0).filter(p => p > 0).sort((a, b) => a - b);
+  const med = basics.length ? basics[Math.floor(basics.length / 2)] : 3;
+  const daily = Math.max(3, med * 3);
+  return LEVEL_DAYS.map((d, i) => i === 0 ? 0 : Math.max(5, Math.round(daily * d / 5) * 5));
+}
+function buildLevels(thresholds, keepNames) {
+  return PRESET_LEVELS.map((p, i) => ({
+    pts: thresholds[i],
+    icon: keepNames && keepNames[i] ? keepNames[i].icon : p.icon,
+    name: keepNames && keepNames[i] ? keepNames[i].name : p.name,
+  }));
+}
+
+function renderLevelBar() {
+  const c = kid(); if (!c) return;
+  const n = levelOf(c.id), cur = levelInfo(n), v = xp(c.id);
+  const el = $("#lv-bar");
+  if (n >= 10) {
+    el.innerHTML = `<div class="row"><b>${cur.icon} LV${n}・${cur.name}</b><span class="max">👑 最高等級！累計 ${v} 點</span></div>
+      <div class="track"><i style="width:100%"></i></div>`;
+    return;
+  }
+  const next = levelInfo(n + 1), lo = cur.pts, hi = next.pts;
+  const pct = Math.max(4, Math.min(100, Math.round((v - lo) / (hi - lo) * 100)));
+  el.innerHTML = `<div class="row"><b>${cur.icon} LV${n}・${cur.name}</b><span>還差 <b>${hi - v}</b> 點升級 ${next.icon}</span></div>
+    <div class="track"><i style="width:${pct}%"></i></div>`;
+}
+/* 升級慶祝：只在小孩端畫面觸發，一次只跳一個（顯示目前等級），避免連升多級時跳好幾個視窗 */
+function checkLevelUp() {
+  const c = kid(); if (!c) return;
+  const b = bucket(c.id), n = levelOf(c.id);
+  if (n <= (b.lvSeen || 1)) return;
+  const L = levelInfo(n);
+  $("#lu-icon").textContent = L.icon; $("#lu-tag").textContent = `LV ${n}`; $("#lu-name").textContent = L.name;
+  $("#lu-text").textContent = n >= 10 ? `${c.name} 已經是最高等級了！你是真正的任務之王 👑` : `${c.name} 升級了！繼續累積點數，下一個是 ${levelInfo(n + 1).icon} ${levelInfo(n + 1).name}`;
+  b.lvSeen = n; save();
+  $("#modal-levelup").classList.remove("hidden");
+  confetti(); setTimeout(confetti, 500);
+}
+
+/* 設定頁：角色清單 */
+function renderLevelList() {
+  const who = S.children.map(c => ({ c, n: levelOf(c.id) }));
+  $("#level-list").innerHTML = S.levels.map((l, i) => {
+    const here = who.filter(w => w.n === i + 1).map(w => `<span class="who"><span class="av">${avatarHTML(w.c.avatar)}</span>${w.c.name}</span>`).join("");
+    return `<div class="lv-row"><span class="ic">${l.icon}</span>
+      <div class="bd">LV${i + 1}・${l.name}${here}<small>${i === 0 ? "起點" : `累計 ${l.pts} 點`}</small></div>
+      <button class="edt" data-editlv="${i}">編輯</button></div>`;
+  }).join("");
+}
+let editLvIdx = 0, mlIcon = "🥚";
+function openLevelModal(i) {
+  editLvIdx = i; const l = S.levels[i];
+  $("#ml-title").textContent = `✏️ LV${i + 1} 角色`;
+  $("#ml-name").value = l.name; $("#ml-pts").value = l.pts; mlIcon = l.icon;
+  $("#ml-pts").disabled = i === 0;
+  const prev = i > 0 ? S.levels[i - 1].pts : null, next = i < 9 ? S.levels[i + 1].pts : null;
+  $("#ml-note").textContent = i === 0 ? "LV1 是起點，門檻固定為 0。" : `門檻必須大於 LV${i}（${prev} 點）${next !== null ? `、小於 LV${i + 2}（${next} 點）` : ""}。`;
+  const set = LEVEL_ICONS.includes(mlIcon) ? LEVEL_ICONS : [mlIcon, ...LEVEL_ICONS];
+  iconGrid($("#ml-icons"), set, mlIcon, x => mlIcon = x);
+  $("#modal-level").classList.remove("hidden");
+}
+function saveLevel() {
+  const i = editLvIdx, name = $("#ml-name").value.trim(); if (!name) return toast("請填角色名稱");
+  let pts = i === 0 ? 0 : Math.round(+$("#ml-pts").value || 0);
+  if (i > 0) {
+    const prev = S.levels[i - 1].pts, next = i < 9 ? S.levels[i + 1].pts : Infinity;
+    if (pts <= prev || pts >= next) return toast(`門檻要介於 ${prev + 1} 與 ${next === Infinity ? "∞" : next - 1} 之間`);
+  }
+  const before = S.children.map(c => levelOf(c.id));
+  Object.assign(S.levels[i], { name, icon: mlIcon, pts });
+  const changed = S.children.filter((c, k) => levelOf(c.id) !== before[k]).map(c => `${c.name} → LV${levelOf(c.id)}`);
+  save(); $("#modal-level").classList.add("hidden"); renderLevelList();
+  toast(changed.length ? `已儲存，等級變動：${changed.join("、")}` : "已儲存");
+}
+/* 改門檻前先講清楚會動到誰，因為「無故降級」是小孩最受不了的事 */
+function previewThresholds(newPts, label, apply) {
+  const before = S.children.map(c => ({ c, n: levelOf(c.id) }));
+  const saved = S.levels.map(l => l.pts);
+  S.levels.forEach((l, i) => l.pts = newPts[i]);
+  const diffs = before.filter(w => levelOf(w.c.id) !== w.n).map(w => `${w.c.name}：LV${w.n} → LV${levelOf(w.c.id)}`);
+  S.levels.forEach((l, i) => l.pts = saved[i]);
+  const body = `新門檻：${newPts.slice(1).join(" / ")} 點。` + (diffs.length ? `\n會影響：${diffs.join("；")}` : "\n目前小孩的等級都不會改變。");
+  openConfirm("🏆", label, body, () => { apply(); save(); renderLevelList(); toast("已更新"); });
+}
+
 /* ---------- 事件綁定 ---------- */
 function bind() {
   // 小孩端
@@ -1968,13 +2322,34 @@ function bind() {
     const dt = e.target.closest("[data-deltask]");
     if (dt) {
       const id = dt.dataset.deltask, t = S.tasks.find(x => x.id === id);
-      const doDel = () => { S.tasks = S.tasks.filter(x => x.id !== id); libSel.delete(id); save(); renderAssign(); toast("已從任務庫移除"); };
+      const doDel = () => {
+        S.recurring.filter(r => r.tid === id).forEach(r => pruneRecurring(r.id));
+        S.recurring = S.recurring.filter(r => r.tid !== id);
+        S.tasks = S.tasks.filter(x => x.id !== id); libSel.delete(id); save(); renderAssign(); toast("已從任務庫移除");
+      };
       return t && !t.custom ? openConfirm("🗑️", `刪除「${t.name}」？`, "這是預設任務，刪除後可在設定頁「還原預設」找回。", doDel) : doDel();
     }
     const er = e.target.closest("[data-editreward]");
     if (er) return openRewardModal(er.dataset.editreward);
     const un = e.target.closest("[data-unassign]");
     if (un) { const days = D(), ds = un.dataset.uds; days[ds] = (days[ds] || []).filter(t => t.id !== un.dataset.unassign); if (!days[ds].length) delete days[ds]; save(); return renderAssign(); }
+    const el_ = e.target.closest("[data-editlv]");
+    if (el_) return openLevelModal(+el_.dataset.editlv);
+    const rp = e.target.closest("[data-recurpause]");
+    if (rp) {
+      const r = S.recurring.find(x => x.id === rp.dataset.recurpause); if (!r) return;
+      r.paused = !r.paused;
+      if (r.paused) pruneRecurring(r.id); else materializeRecurring();
+      save(); renderAssign(); return toast(r.paused ? "已暫停，明天起不再自動出現" : "已恢復");
+    }
+    const rd = e.target.closest("[data-recurdel]");
+    if (rd) {
+      const r = S.recurring.find(x => x.id === rd.dataset.recurdel); if (!r) return;
+      const t = S.tasks.find(x => x.id === r.tid);
+      return openConfirm("🗑️", `刪除固定任務「${t ? t.name : ""}」？`, "明天以後還沒完成的會一併移除；今天的與已完成的紀錄不受影響。", () => {
+        pruneRecurring(r.id); S.recurring = S.recurring.filter(x => x.id !== r.id); save(); renderAssign(); toast("已刪除固定任務");
+      });
+    }
     const ac = e.target.closest("[data-adjchip]");
     if (ac) { switchTo(ac.dataset.adjchip); return renderAdjust(); }
     const da = e.target.closest("[data-doadj]");
@@ -2054,9 +2429,9 @@ function bind() {
     const pts = Math.max(1, +$("#mr-pts").value || 1);
     if (editRewardId) {
       const r = S.rewards.find(x => x.id === editRewardId);
-      if (r) Object.assign(r, { name, icon: mrIcon, pts });
+      if (r) Object.assign(r, { name, icon: mrIcon, pts, minLevel: +$("#mr-lv").value || 1 });
       toast("獎品已更新");
-    } else { S.rewards.push({ id: uid(), name, icon: mrIcon, pts }); toast("已新增獎品"); }
+    } else { S.rewards.push({ id: uid(), name, icon: mrIcon, pts, minLevel: +$("#mr-lv").value || 1 }); toast("已新增獎品"); }
     editRewardId = null; save(); $("#modal-reward").classList.add("hidden"); renderRewards();
   };
   $("#mc-ok").onclick = () => { $("#modal-confirm").classList.add("hidden"); mcCb && mcCb(); };
@@ -2102,6 +2477,25 @@ function bind() {
   };
   $("#fb-text").oninput = e => { $("#fb-count").textContent = `${e.target.value.length} / 1000`; };
   $("#fb-send").onclick = sendFeedback;
+
+  // 角色等級
+  $("#lu-ok").onclick = () => $("#modal-levelup").classList.add("hidden");
+  $("#ml-save").onclick = saveLevel;
+  $("#btn-lv-recalc").onclick = () => previewThresholds(calibrateLevels(), "依目前任務庫重算門檻？",
+    () => { const t = calibrateLevels(); S.levels.forEach((l, i) => l.pts = t[i]); });
+  $("#btn-lv-reset").onclick = () => previewThresholds(S.levels.map(l => l.pts), "還原預設角色名稱與圖示？",
+    () => { S.levels.forEach((l, i) => { l.icon = PRESET_LEVELS[i].icon; l.name = PRESET_LEVELS[i].name; }); });
+
+  // 固定任務
+  $("#btn-recur").onclick = openRecurModal;
+  $("#mrc-days").onclick = e => { const b = e.target.closest("[data-wk]"); if (!b) return; const d = +b.dataset.wk; mrcDays.has(d) ? mrcDays.delete(d) : mrcDays.add(d); drawRecurDays(); };
+  $("#modal-recur .quick-row").onclick = e => {
+    const b = e.target.closest("[data-wq]"); if (!b) return;
+    mrcDays = new Set(b.dataset.wq === "all" ? [0, 1, 2, 3, 4, 5, 6] : b.dataset.wq === "wd" ? [1, 2, 3, 4, 5] : [0, 6]);
+    drawRecurDays();
+  };
+  $("#mrc-kids").onclick = e => { const c = e.target.closest("[data-mrckid]"); if (c) c.classList.toggle("on"); };
+  $("#mrc-save").onclick = saveRecur;
 
   // 加扣點
   $$("#pv-adjust .seg-toggle [data-adjkind]").forEach(b => b.onclick = () => { adjKind = b.dataset.adjkind; renderAdjust(); });
@@ -2166,6 +2560,7 @@ load();
 if (!S) S = defaultState();  // 第一次開啟：乾淨初始設定（範例資料改由設定頁按鈕載入）
 migrate(); save();           // 舊版單一小孩資料自動升級為多小孩結構
 initPin(); bind(); initPWA();
+materializeRecurring();                     // 固定任務往後鋪 14 天
 flushFeedbackQueue();                       // 有未送出的回饋就補送
 if (!S.introSeen) openIntro();              // 第一次開啟：先看功能介紹
 else if (!S.children.length) { show("setup"); initSetup(); }
